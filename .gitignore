@@ -9,3 +9,6 @@ free-exercise-db/
 
 # Virtual environments
 .venv
+
+# environment variables
+.env
