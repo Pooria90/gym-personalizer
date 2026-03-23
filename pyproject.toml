@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "gym"
 version = "0.1.0"
@@ -6,8 +10,19 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "devtools>=0.12.2",
+    "pydantic>=2",
+    "pydantic-settings>=2",
+    "python-dotenv>=1.0.0",
     "rail-engine>=0.1.6",
     "rail-engine-ingest>=0.1.6",
     "railtracks>=1.2.2",
     "railtracks-cli>=1.2.2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gym_pt"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
 ]
