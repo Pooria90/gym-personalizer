@@ -11,10 +11,26 @@ class FitnessLevel(str, Enum):
     ADVANCED = "advanced"
 
 
+class PlanHorizon(str, Enum):
+    """How the plan is scoped (metadata for Phase 3 canned scenarios)."""
+
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    CUSTOM = "custom"
+
+
+class GoalType(str, Enum):
+    STRENGTH = "strength"
+    HYPERTROPHY = "hypertrophy"
+    FAT_LOSS = "fat_loss"
+    GENERAL_FITNESS = "general_fitness"
+    ENDURANCE = "endurance"
+
+
 class UserProfile(BaseModel):
     """Inputs collected before generating a plan (agent intake)."""
 
-    goal: str = Field(..., description="e.g. strength, hypertrophy, general fitness")
+    goal: GoalType = Field(..., description="e.g. strength, hypertrophy, general fitness")
     days_per_week: int = Field(..., ge=1, le=7)
     equipment: list[str] = Field(default_factory=list)
     level: FitnessLevel = FitnessLevel.INTERMEDIATE
@@ -46,3 +62,15 @@ class WorkoutPlan(BaseModel):
     title: str | None = None
     weeks: int = Field(default=1, ge=1)
     days: list[WorkoutDay] = Field(default_factory=list)
+    horizon: PlanHorizon | None = Field(
+        default=None,
+        description="Optional scope label (daily / weekly / custom).",
+    )
+    summary_markdown: str | None = Field(
+        default=None,
+        description="Short overview for the user (Phase 3 reporter).",
+    )
+    detail_markdown: str | None = Field(
+        default=None,
+        description="Detailed instructions / narrative (Phase 3 reporter).",
+    )
