@@ -20,11 +20,13 @@ class PlanHorizon(str, Enum):
 
 
 class GoalType(str, Enum):
+    CARDIO = "cardio"
+    OLYMPIC_WEIGHTLIFTING = "olympic weightlifting"
+    PLYOMETRICS = "plyometrics"
+    POWERLIFTING = "powerlifting"
     STRENGTH = "strength"
-    HYPERTROPHY = "hypertrophy"
-    FAT_LOSS = "fat_loss"
-    GENERAL_FITNESS = "general_fitness"
-    ENDURANCE = "endurance"
+    STRETCHING = "stretching"
+    STRONGMAN = "strongman"
 
 
 class UserProfile(BaseModel):
