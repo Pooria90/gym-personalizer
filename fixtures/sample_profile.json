@@ -1,0 +1,7 @@
+{
+    "goal": "strength",
+    "days_per_week": 3,
+    "equipment": ["machine", "dumbbell"],
+    "level": "beginner",
+    "notes": null
+  }
