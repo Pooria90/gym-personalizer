@@ -12,3 +12,6 @@ free-exercise-db/
 
 # environment variables
 .env
+
+# railtracks
+.railtracks/
