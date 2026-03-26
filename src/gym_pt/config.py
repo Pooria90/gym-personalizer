@@ -12,6 +12,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # gym/src/gym_pt/config.py → project root is parents[2] (gym/)
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = _PROJECT_ROOT
 _ENV_PATH = _PROJECT_ROOT / ".env"
 
 
