@@ -32,7 +32,9 @@ class GoalType(str, Enum):
 class UserProfile(BaseModel):
     """Inputs collected before generating a plan (agent intake)."""
 
-    goal: GoalType = Field(..., description="e.g. strength, hypertrophy, general fitness")
+    goal: GoalType = Field(
+        ..., description="e.g. strength, hypertrophy, general fitness"
+    )
     days_per_week: int = Field(..., ge=1, le=7)
     equipment: list[str] = Field(default_factory=list)
     level: FitnessLevel = FitnessLevel.INTERMEDIATE
@@ -48,22 +50,27 @@ class ExerciseQueries(BaseModel):
     warmup_query: str = Field(
         ...,
         description="Cardio or light movement to elevate heart rate before training",
+        json_schema_extra={"top_k": 4},
     )
     primary_query: str = Field(
         ...,
         description="Main compound movements aligned with the user's goal and target muscles",
+        json_schema_extra={"top_k": 5},
     )
     secondary_query: str = Field(
         ...,
         description="Accessory or isolation work supporting the primary movements",
+        json_schema_extra={"top_k": 6},
     )
     equipment_query: str = Field(
         ...,
         description="Exercises filtered to the user's available equipment and fitness level",
+        json_schema_extra={"top_k": 3},
     )
     cooldown_query: str = Field(
         ...,
         description="Stretching or static holds for recovery and flexibility",
+        json_schema_extra={"top_k": 3},
     )
 
 

@@ -6,6 +6,7 @@ from gym_pt.models.plan import (
     UserProfile,
     WorkoutDay,
     WorkoutPlan,
+    ExerciseQueries,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "UserProfile",
     "WorkoutDay",
     "WorkoutPlan",
+    "ExerciseQueries",
 ]

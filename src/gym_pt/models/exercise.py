@@ -2,13 +2,11 @@ from pydantic import BaseModel, Field
 
 
 class Exercise(BaseModel):
-    """Canonical exercise document aligned with Railengine vector search payloads."""
-
     name: str
-    force: str
+    force: str | None = None
     level: str
-    mechanic: str
-    equipment: str
+    mechanic: str | None = None
+    equipment: str | None = None
     primaryMuscles: list[str]
     secondaryMuscles: list[str]
     instructions: list[str]
