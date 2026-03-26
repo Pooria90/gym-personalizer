@@ -1,5 +1,9 @@
-from .agents import Intake_agent
+from .agents import (
+    Intake_agent,
+    Query_Agent
+)
 
 __all__ = [
-    "Intake_agent"
+    "Intake_agent",
+    "Query_Agent"
 ]

@@ -42,6 +42,31 @@ class UserProfile(BaseModel):
     )
 
 
+class ExerciseQueries(BaseModel):
+    """Search queries aligned with the structure of a training session."""
+
+    warmup_query: str = Field(
+        ...,
+        description="Cardio or light movement to elevate heart rate before training",
+    )
+    primary_query: str = Field(
+        ...,
+        description="Main compound movements aligned with the user's goal and target muscles",
+    )
+    secondary_query: str = Field(
+        ...,
+        description="Accessory or isolation work supporting the primary movements",
+    )
+    equipment_query: str = Field(
+        ...,
+        description="Exercises filtered to the user's available equipment and fitness level",
+    )
+    cooldown_query: str = Field(
+        ...,
+        description="Stretching or static holds for recovery and flexibility",
+    )
+
+
 class PlannedExercise(BaseModel):
     """One slot in a workout day, referencing catalog exercises by id."""
 
