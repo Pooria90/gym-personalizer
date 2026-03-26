@@ -12,7 +12,9 @@ from gym_pt.railengine.retrieval import (
 )
 
 
-def _exercise(eid: str = "1", equipment: str = "cable", level: str = "beginner") -> Exercise:
+def _exercise(
+    eid: str = "1", equipment: str = "cable", level: str = "beginner"
+) -> Exercise:
     return Exercise(
         name="Cable Curl",
         force="pull",

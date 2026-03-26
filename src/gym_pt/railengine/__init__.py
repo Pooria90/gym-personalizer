@@ -1,4 +1,7 @@
-from gym_pt.railengine.query_protocol import DefaultSearchQueryBuilder, SearchQueryBuilder
+from gym_pt.railengine.query_protocol import (
+    DefaultSearchQueryBuilder,
+    SearchQueryBuilder,
+)
 from gym_pt.railengine.retrieval import (
     filter_by_equipment,
     filter_by_level,

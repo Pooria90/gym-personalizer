@@ -29,7 +29,9 @@ logger = logging.getLogger("gym_pt.railengine.sdk_patch")
 async def _search_vector_store_patched(
     client: Railengine,
     engine_id: Optional[str] = None,
-    vector_store: Literal["VectorStore1", "VectorStore2", "VectorStore3"] = "VectorStore1",
+    vector_store: Literal[
+        "VectorStore1", "VectorStore2", "VectorStore3"
+    ] = "VectorStore1",
     query: str = "",
     filter_fn: Optional[Callable[[Any], bool]] = None,
     model: Optional[Type[BaseModel]] = None,
@@ -38,7 +40,9 @@ async def _search_vector_store_patched(
 
     valid_stores = {"VectorStore1", "VectorStore2", "VectorStore3"}
     if vector_store not in valid_stores:
-        raise ValueError(f"vector_store must be one of {valid_stores}, got '{vector_store}'")
+        raise ValueError(
+            f"vector_store must be one of {valid_stores}, got '{vector_store}'"
+        )
 
     endpoint = f"{client.api_url}/api/Engine/{engine_id}/Embeddings/Search"
     headers = client._get_headers()
