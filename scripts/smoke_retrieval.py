@@ -33,7 +33,9 @@ def main() -> int:
     args = parser.parse_args()
 
     async def run() -> None:
-        results = await search_exercises(args.query, max_results=args.max_results, use_sdk_patch=False)
+        results = await search_exercises(
+            args.query, max_results=args.max_results, use_sdk_patch=False
+        )
         logger.info("Got %s result(s)", len(results))
         for i, item in enumerate(results, 1):
             logger.info("--- Item %s ---", i)

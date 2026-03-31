@@ -6,5 +6,5 @@ __all__ = [
     "Query_Agent",
     "Planner_Agent",
     "retrieve_exercises",
-    "query_and_retrieve"
+    "query_and_retrieve",
 ]

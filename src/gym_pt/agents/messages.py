@@ -1,5 +1,3 @@
-
-
 INTAKE_SYSTEM_MESSAGE = """
 You are the intake assistant for a personal trainer app.
 Your only job is to collect information from the user and return a structured profile.
@@ -69,7 +67,7 @@ Rules:
 }"""
 
 
-PLANNER_SYSTEM_MESSAGE="""You are an expert personal trainer generating a structured workout plan.
+PLANNER_SYSTEM_MESSAGE = """You are an expert personal trainer generating a structured workout plan.
 
 You will receive a user profile and a list of exercises retrieved from a database.
 
