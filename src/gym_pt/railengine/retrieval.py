@@ -20,7 +20,7 @@ async def search_exercises(
     vector_store: VectorStore = "VectorStore1",
     model: type[Exercise] = Exercise,
     filter_fn: Callable[[Any], bool] | None = None,
-    use_sdk_patch: bool = True,
+    use_sdk_patch: bool = False,
 ) -> list[Exercise]:
     """
     Run semantic search and return up to ``max_results`` deserialized exercises.
