@@ -1,0 +1,132 @@
+{
+  "title": "Beginner Strength Plan \u2013 3 Days/Week",
+  "days": [
+    {
+      "day_index": 0,
+      "focus": "Chest & Shoulders",
+      "exercises": [
+        {
+          "exercise_id": "Walking_Treadmill",
+          "name": "Walking Treadmill",
+          "sets": 1,
+          "reps": "5 min"
+        },
+        {
+          "exercise_id": "Incline_Dumbbell_Bench_With_Palms_Facing_In",
+          "name": "Incline Dumbbell Bench With Palms Facing In",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Bent-Arm_Dumbbell_Pullover",
+          "name": "Bent-Arm Dumbbell Pullover",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Standing_Palm-In_One-Arm_Dumbbell_Press",
+          "name": "Standing Palm-In One-Arm Dumbbell Press",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Front_Two-Dumbbell_Raise",
+          "name": "Front Two-Dumbbell Raise",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Runners_Stretch",
+          "name": "Runners Stretch",
+          "sets": 1,
+          "reps": "30-45 sec each side"
+        }
+      ]
+    },
+    {
+      "day_index": 1,
+      "focus": "Back & Biceps",
+      "exercises": [
+        {
+          "exercise_id": "Jogging_Treadmill",
+          "name": "Jogging Treadmill",
+          "sets": 1,
+          "reps": "5 min"
+        },
+        {
+          "exercise_id": "Bent_Over_Two-Dumbbell_Row_With_Palms_In",
+          "name": "Bent Over Two-Dumbbell Row With Palms In",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Straight-Arm_Dumbbell_Pullover",
+          "name": "Straight-Arm Dumbbell Pullover",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Standing_One-Arm_Dumbbell_Curl_Over_Incline_Bench",
+          "name": "Standing One-Arm Dumbbell Curl Over Incline Bench",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Seated_Bent-Over_Rear_Delt_Raise",
+          "name": "Seated Bent-Over Rear Delt Raise",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Dynamic_Back_Stretch",
+          "name": "Dynamic Back Stretch",
+          "sets": 1,
+          "reps": "30-45 sec"
+        }
+      ]
+    },
+    {
+      "day_index": 2,
+      "focus": "Shoulders & Full Body Stability",
+      "exercises": [
+        {
+          "exercise_id": "Walking_Treadmill",
+          "name": "Walking Treadmill",
+          "sets": 1,
+          "reps": "5 min"
+        },
+        {
+          "exercise_id": "Dumbbell_Incline_Shoulder_Raise",
+          "name": "Dumbbell Incline Shoulder Raise",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Standing_Dumbbell_Straight-Arm_Front_Delt_Raise_Above_Head",
+          "name": "Standing Dumbbell Straight-Arm Front Delt Raise Above Head",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Bent_Over_Dumbbell_Rear_Delt_Raise_With_Head_On_Bench",
+          "name": "Bent Over Dumbbell Rear Delt Raise With Head On Bench",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Front_Incline_Dumbbell_Raise",
+          "name": "Front Incline Dumbbell Raise",
+          "sets": 3,
+          "reps": "10-12"
+        },
+        {
+          "exercise_id": "Seated_Overhead_Stretch",
+          "name": "Seated Overhead Stretch",
+          "sets": 1,
+          "reps": "30-45 sec"
+        }
+      ]
+    }
+  ],
+  "notes": "Designed for beginner-level strength training using dumbbells and machines. Rest 60-90 seconds between sets. Train on non-consecutive days (e.g., Mon/Wed/Fri). Focus on controlled form over heavy weight. Increase resistance gradually as exercises become easier."
+}
