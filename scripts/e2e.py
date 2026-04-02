@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Any, Mapping, cast
 
 import railtracks as rt
-from rich import print
 
 from gym_pt.agents import *
 from gym_pt.models import *
@@ -13,15 +12,17 @@ from gym_pt.utils import *
 # Logging stuff
 _logging_level = logging.DEBUG
 
-def set_logger(level = _logging_level):
+
+def set_logger(level=_logging_level):
     logger = logging.getLogger("E2E")
     handler = logging.StreamHandler()
     handler.setLevel(level)
-    formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
+    formatter = logging.Formatter("[%(levelname)s] %(name)s: %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.setLevel(level)
     return logger
+
 
 logger = set_logger()
 
@@ -104,12 +105,8 @@ async def main(user_query: str):
         {k: ex.__getattribute__(k) for k in fields_to_keep} for ex in exercises
     ]
 
-
     plan_query = {"profile": profile, "exercises": filtered_exercises}
-    plan_output = await rt.call(
-        Planner_Agent,
-        str(plan_query)
-    )
+    plan_output = await rt.call(Planner_Agent, str(plan_query))
     plan_struct = plan_output.structured
     validate_plan_exercise_ids(plan_struct.model_dump(), exercises)
 
@@ -120,7 +117,6 @@ async def main(user_query: str):
     }
 
     return final_output
-
 
 
 flow = rt.Flow("End-to-End", entry_point=main)

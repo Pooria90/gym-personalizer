@@ -56,7 +56,9 @@ def enrich_workout_plan_with_instructions(
             if not isinstance(ex, dict):
                 continue
             eid = ex.get("exercise_id")
-            ex["instructions"] = list(by_id.get(str(eid), [])) if eid is not None else []
+            ex["instructions"] = (
+                list(by_id.get(str(eid), [])) if eid is not None else []
+            )
     return out
 
 
