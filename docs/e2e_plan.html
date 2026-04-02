@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Intermediate Strength Plan – 3 Days/Week</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a222d;
+      --border: #2d3a4a;
+      --text: #e8eaed;
+      --muted: #9aa5b1;
+      --accent: #3ecf8e;
+      --accent-dim: #2a8f5e;
+      --radius: 12px;
+      --font: "Segoe UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background: radial-gradient(ellipse 120% 80% at 50% -20%, #1e3a2f 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem clamp(1rem, 4vw, 2.5rem) 3rem;
+    }
+    .wrap {
+      max-width: 52rem;
+      margin: 0 auto;
+    }
+    header.page {
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    header.page h1 {
+      margin: 0 0 0.35rem;
+      font-size: clamp(1.35rem, 3vw, 1.75rem);
+      font-weight: 650;
+      letter-spacing: -0.02em;
+    }
+    header.page .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .days {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .day-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+    .day-head {
+      padding: 1rem 1.25rem;
+      background: linear-gradient(135deg, rgba(62, 207, 142, 0.12) 0%, transparent 60%);
+      border-bottom: 1px solid var(--border);
+    }
+    .day-head h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 650;
+      color: var(--accent);
+    }
+    .day-focus {
+      margin: 0.4rem 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 0.65rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+    tbody tr:hover td {
+      background: rgba(62, 207, 142, 0.06);
+    }
+    .col-num { width: 2.5rem; color: var(--muted); vertical-align: top; }
+    .col-sets { width: 4rem; vertical-align: top; }
+    .col-reps { width: 8rem; vertical-align: top; }
+    .col-name { vertical-align: top; }
+    details.ex-instr {
+      margin: 0;
+    }
+    details.ex-instr summary.ex-summary {
+      cursor: pointer;
+      font-weight: 500;
+      list-style: none;
+      padding: 0.15rem 0;
+    }
+    details.ex-instr summary.ex-summary::-webkit-details-marker {
+      display: none;
+    }
+    details.ex-instr summary.ex-summary::before {
+      content: "▸ ";
+      color: var(--accent);
+      display: inline-block;
+      transition: transform 0.15s ease;
+    }
+    details.ex-instr[open] summary.ex-summary::before {
+      transform: rotate(90deg);
+    }
+    .instr-body {
+      margin: 0.5rem 0 0.35rem 1rem;
+      padding: 0.65rem 0.85rem;
+      border-left: 2px solid var(--accent-dim);
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .instr-body p {
+      margin: 0 0 0.5rem;
+    }
+    .instr-body p:last-child {
+      margin-bottom: 0;
+    }
+    .ex-name-plain {
+      display: inline-block;
+      padding: 0.15rem 0;
+    }
+    td.empty {
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      padding: 1.25rem;
+    }
+    .notes {
+      margin-top: 2rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      border-left: 3px solid var(--accent-dim);
+    }
+    .notes h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+    .notes p {
+      margin: 0;
+      color: var(--text);
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="page">
+      <h1>Intermediate Strength Plan – 3 Days/Week</h1>
+      <p class="subtitle">3 training day(s)</p>
+    </header>
+    <main class="days">
+      
+            <section class="day-card" aria-labelledby="day-1-heading">
+              <header class="day-head">
+                <h2 id="day-1-heading">Day 1</h2>
+                <p class="day-focus">Chest &amp; Shoulders</p>
+              </header>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="col-num" scope="col">#</th>
+                      <th scope="col">Exercise</th>
+                      <th class="col-sets" scope="col">Sets</th>
+                      <th class="col-reps" scope="col">Reps / time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="col-num">1</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Jogging Treadmill</summary><div class="instr-body"><p>To begin, step onto the treadmill and select the desired option from the menu. Most treadmills have a manual setting, or you can select a program to run. Typically, you can enter your age and weight to estimate the amount of calories burned during exercise. Elevation can be adjusted to change the intensity of the workout.</p><p>Treadmills offer convenience, cardiovascular benefits, and usually have less impact than jogging outside. A 150 lb person will burn almost 250 calories jogging for 30 minutes, compared to more than 450 calories running. Maintain proper posture as you jog, and only hold onto the handles when necessary, such as when dismounting or checking your heart rate.</p></div></details></td><td class="col-sets">1</td><td class="col-reps">5 min</td></tr><tr><td class="col-num">2</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Bent-Arm Dumbbell Pullover</summary><div class="instr-body"><p>Place a dumbbell standing up on a flat bench.</p><p>Ensuring that the dumbbell stays securely placed at the top of the bench, lie perpendicular to the bench (torso across it as in forming a cross) with only your shoulders lying on the surface. Hips should be below the bench and legs bent with feet firmly on the floor. The head will be off the bench as well.</p><p>Grasp the dumbbell with both hands and hold it straight over your chest with a bend in your arms. Both palms should be pressing against the underside one of the sides of the dumbbell. This will be your starting position. Caution: Always ensure that the dumbbell used for this exercise is secure. Using a dumbbell with loose plates can result in the dumbbell falling apart and falling on your face.</p><p>While keeping your arms locked in the bent arm position, lower the weight slowly in an arc behind your head while breathing in until you feel a stretch on the chest.</p><p>At that point, bring the dumbbell back to the starting position using the arc through which the weight was lowered and exhale as you perform this movement.</p><p>Hold the weight on the initial position for a second and repeat the motion for the prescribed number of repetitions.</p></div></details></td><td class="col-sets">4</td><td class="col-reps">8-10</td></tr><tr><td class="col-num">3</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Seated Bent-Over Rear Delt Raise</summary><div class="instr-body"><p>Place a couple of dumbbells looking forward in front of a flat bench.</p><p>Sit on the end of the bench with your legs together and the dumbbells behind your calves.</p><p>Bend at the waist while keeping the back straight in order to pick up the dumbbells. The palms of your hands should be facing each other as you pick them. This will be your starting position.</p><p>Keeping your torso forward and stationary, and the arms slightly bent at the elbows, lift the dumbbells straight to the side until both arms are parallel to the floor. Exhale as you lift the weights. (Note: avoid swinging the torso or bringing the arms back as opposed to the side.)</p><p>After a one second contraction at the top, slowly lower the dumbbells back to the starting position.</p><p>Repeat for the recommended amount of repetitions.</p></div></details></td><td class="col-sets">3</td><td class="col-reps">10-12</td></tr><tr><td class="col-num">4</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Standing Dumbbell Straight-Arm Front Delt Raise Above Head</summary><div class="instr-body"><p>Hold the dumbbells in front of your thighs, palms facing your thighs.</p><p>Keep your arms straight with a slight bend at the elbows but keep them locked. This will be your starting position.</p><p>Raise the dumbbells in a semicircular motion to arm&#x27;s length overhead as you exhale.</p><p>Slowly return to the starting position using the same path as you inhale.</p><p>Repeat for the recommended amount of repetitions.</p></div></details></td><td class="col-sets">3</td><td class="col-reps">10-12</td></tr><tr><td class="col-num">5</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Isometric Neck Exercise - Front and Back</summary><div class="instr-body"><p>With your head and neck in a neutral position (normal position with head erect facing forward), place both of your hands on the front side of your head.</p><p>Now gently push forward as you contract the neck muscles but resisting any movement of your head. Start with slow tension and increase slowly. Keep breathing normally as you execute this contraction.</p><p>Hold for the recommended number of seconds.</p><p>Now release the tension slowly.</p><p>Rest for the recommended amount of time and repeat with your hands placed on the back side of your head.</p></div></details></td><td class="col-sets">2</td><td class="col-reps">10</td></tr><tr><td class="col-num">6</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Chest and Front of Shoulder Stretch</summary><div class="instr-body"><p>Start off by standing with your legs together, holding a bodybar or a broomstick.</p><p>Take a slightly wider than shoulder width grip on the pole and hold it in front of you with your palms facing down.</p><p>Carefully lift the pole up and behind your head.</p></div></details></td><td class="col-sets">1</td><td class="col-reps">60 sec</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            
+            <section class="day-card" aria-labelledby="day-2-heading">
+              <header class="day-head">
+                <h2 id="day-2-heading">Day 2</h2>
+                <p class="day-focus">Back &amp; Biceps</p>
+              </header>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="col-num" scope="col">#</th>
+                      <th scope="col">Exercise</th>
+                      <th class="col-sets" scope="col">Sets</th>
+                      <th class="col-reps" scope="col">Reps / time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="col-num">1</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Walking Treadmill</summary><div class="instr-body"><p>To begin, step onto the treadmill and select the desired option from the menu. Most treadmills have a manual setting, or you can select a program to run. Typically, you can enter your age and weight to estimate the amount of calories burned during exercise. Elevation can be adjusted to change the intensity of the workout.</p><p>Treadmills offer convenience, cardiovascular benefits, and usually have less impact than walking outside. When walking, you should move at a moderate to fast pace, not a leisurely one. Being an activity of lower intensity, walking doesn&#x27;t burn as many calories as some other activities, but still provides great benefit. A 150 lb person will burn about 175 calories walking 4 miles per hour for 30 minutes, compared to 450 calories running twice as fast. Maintain proper posture as you walk, and only hold onto the handles when necessary, such as when dismounting or checking your heart rate.</p></div></details></td><td class="col-sets">1</td><td class="col-reps">5 min</td></tr><tr><td class="col-num">2</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Mixed Grip Chin</summary><div class="instr-body"><p>Using a spacing that is just about 1 inch wider than shoulder width, grab a pull-up bar with the palms of one hand facing forward and the palms of the other hand facing towards you. This will be your starting position.</p><p>Now start to pull yourself up as you exhale. Tip: With the arm that has the palms facing up concentrate on using the back muscles in order to perform the movement. The elbow of that arm should remain close to the torso. With the other arm that has the palms facing forward, the elbows will be away but in line with the torso. You will concentrate on using the lats to pull your body up.</p><p>After a second contraction at the top, start to slowly come down as you inhale.</p><p>Repeat for the recommended amount of repetitions.</p><p>On the following set, switch grips; so if you had the right hand with the palms facing you and the left one with the palms facing forward, on the next set you will have the palms facing forward for the right hand and facing you for the left.</p></div></details></td><td class="col-sets">4</td><td class="col-reps">6-8</td></tr><tr><td class="col-num">3</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Standing One-Arm Dumbbell Curl Over Incline Bench</summary><div class="instr-body"><p>Stand on the back side of an incline bench as if you were going to be a spotter for someone. Have a dumbbell in one hand and rest it across the incline bench with a supinated (palms up) grip.</p><p>Position your non lifting hand at the corner or side of the incline bench. The chest should be pressed against the top part of the incline and your feet should be pressed against the floor at a wide stance. This is the starting position.</p><p>While holding the upper arm stationary, curl the dumbbell upward while contracting the biceps as you breathe out. Only the forearms should move. Continue the movement until your biceps are fully contracted and the dumbbell is at shoulder level. Hold the contracted position for a second.</p><p>Slowly begin to bring the dumbbells back to starting position as your breathe in.</p><p>Repeat for the recommended amount of repetitions.</p><p>Switch arms while performing this exercise.</p></div></details></td><td class="col-sets">3</td><td class="col-reps">10-12</td></tr><tr><td class="col-num">4</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Seated Bent-Over Rear Delt Raise</summary><div class="instr-body"><p>Place a couple of dumbbells looking forward in front of a flat bench.</p><p>Sit on the end of the bench with your legs together and the dumbbells behind your calves.</p><p>Bend at the waist while keeping the back straight in order to pick up the dumbbells. The palms of your hands should be facing each other as you pick them. This will be your starting position.</p><p>Keeping your torso forward and stationary, and the arms slightly bent at the elbows, lift the dumbbells straight to the side until both arms are parallel to the floor. Exhale as you lift the weights. (Note: avoid swinging the torso or bringing the arms back as opposed to the side.)</p><p>After a one second contraction at the top, slowly lower the dumbbells back to the starting position.</p><p>Repeat for the recommended amount of repetitions.</p></div></details></td><td class="col-sets">3</td><td class="col-reps">10-12</td></tr><tr><td class="col-num">5</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Dynamic Back Stretch</summary><div class="instr-body"><p>Stand with your feet shoulder width apart. This will be your starting position.</p><p>Keeping your arms straight, swing them straight up in front of you 5-10 times, increasing the range of motion each time until your arms are above your head.</p></div></details></td><td class="col-sets">1</td><td class="col-reps">60 sec</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            
+            <section class="day-card" aria-labelledby="day-3-heading">
+              <header class="day-head">
+                <h2 id="day-3-heading">Day 3</h2>
+                <p class="day-focus">Legs &amp; Shoulders</p>
+              </header>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="col-num" scope="col">#</th>
+                      <th scope="col">Exercise</th>
+                      <th class="col-sets" scope="col">Sets</th>
+                      <th class="col-reps" scope="col">Reps / time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="col-num">1</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Jogging Treadmill</summary><div class="instr-body"><p>To begin, step onto the treadmill and select the desired option from the menu. Most treadmills have a manual setting, or you can select a program to run. Typically, you can enter your age and weight to estimate the amount of calories burned during exercise. Elevation can be adjusted to change the intensity of the workout.</p><p>Treadmills offer convenience, cardiovascular benefits, and usually have less impact than jogging outside. A 150 lb person will burn almost 250 calories jogging for 30 minutes, compared to more than 450 calories running. Maintain proper posture as you jog, and only hold onto the handles when necessary, such as when dismounting or checking your heart rate.</p></div></details></td><td class="col-sets">1</td><td class="col-reps">5 min</td></tr><tr><td class="col-num">2</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Seated Bent-Over Rear Delt Raise</summary><div class="instr-body"><p>Place a couple of dumbbells looking forward in front of a flat bench.</p><p>Sit on the end of the bench with your legs together and the dumbbells behind your calves.</p><p>Bend at the waist while keeping the back straight in order to pick up the dumbbells. The palms of your hands should be facing each other as you pick them. This will be your starting position.</p><p>Keeping your torso forward and stationary, and the arms slightly bent at the elbows, lift the dumbbells straight to the side until both arms are parallel to the floor. Exhale as you lift the weights. (Note: avoid swinging the torso or bringing the arms back as opposed to the side.)</p><p>After a one second contraction at the top, slowly lower the dumbbells back to the starting position.</p><p>Repeat for the recommended amount of repetitions.</p></div></details></td><td class="col-sets">3</td><td class="col-reps">10-12</td></tr><tr><td class="col-num">3</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Standing Dumbbell Straight-Arm Front Delt Raise Above Head</summary><div class="instr-body"><p>Hold the dumbbells in front of your thighs, palms facing your thighs.</p><p>Keep your arms straight with a slight bend at the elbows but keep them locked. This will be your starting position.</p><p>Raise the dumbbells in a semicircular motion to arm&#x27;s length overhead as you exhale.</p><p>Slowly return to the starting position using the same path as you inhale.</p><p>Repeat for the recommended amount of repetitions.</p></div></details></td><td class="col-sets">3</td><td class="col-reps">10-12</td></tr><tr><td class="col-num">4</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Standing One-Arm Dumbbell Curl Over Incline Bench</summary><div class="instr-body"><p>Stand on the back side of an incline bench as if you were going to be a spotter for someone. Have a dumbbell in one hand and rest it across the incline bench with a supinated (palms up) grip.</p><p>Position your non lifting hand at the corner or side of the incline bench. The chest should be pressed against the top part of the incline and your feet should be pressed against the floor at a wide stance. This is the starting position.</p><p>While holding the upper arm stationary, curl the dumbbell upward while contracting the biceps as you breathe out. Only the forearms should move. Continue the movement until your biceps are fully contracted and the dumbbell is at shoulder level. Hold the contracted position for a second.</p><p>Slowly begin to bring the dumbbells back to starting position as your breathe in.</p><p>Repeat for the recommended amount of repetitions.</p><p>Switch arms while performing this exercise.</p></div></details></td><td class="col-sets">3</td><td class="col-reps">10-12</td></tr><tr><td class="col-num">5</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Bent-Arm Dumbbell Pullover</summary><div class="instr-body"><p>Place a dumbbell standing up on a flat bench.</p><p>Ensuring that the dumbbell stays securely placed at the top of the bench, lie perpendicular to the bench (torso across it as in forming a cross) with only your shoulders lying on the surface. Hips should be below the bench and legs bent with feet firmly on the floor. The head will be off the bench as well.</p><p>Grasp the dumbbell with both hands and hold it straight over your chest with a bend in your arms. Both palms should be pressing against the underside one of the sides of the dumbbell. This will be your starting position. Caution: Always ensure that the dumbbell used for this exercise is secure. Using a dumbbell with loose plates can result in the dumbbell falling apart and falling on your face.</p><p>While keeping your arms locked in the bent arm position, lower the weight slowly in an arc behind your head while breathing in until you feel a stretch on the chest.</p><p>At that point, bring the dumbbell back to the starting position using the arc through which the weight was lowered and exhale as you perform this movement.</p><p>Hold the weight on the initial position for a second and repeat the motion for the prescribed number of repetitions.</p></div></details></td><td class="col-sets">3</td><td class="col-reps">8-10</td></tr><tr><td class="col-num">6</td><td class="col-name"><details class="ex-instr"><summary class="ex-summary">Runners Stretch</summary><div class="instr-body"><p>It&#x27;s easiest to get into this stretch if you start standing up, put one leg behind you, and slowly lower your torso down to the floor.</p><p>Keep the front heel on the floor (if it lifts up, scoot your other leg further back).</p><p>Place your hands on either side of your front leg. To get more out of this stretch, push your butt up toward the ceiling, and then gradually lower it back toward the floor. You&#x27;ll Stretch the hip flexor of the back leg and the hamstring and buttocks of the front.</p></div></details></td><td class="col-sets">1</td><td class="col-reps">60 sec</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            
+    </main>
+    
+        <section class="notes" aria-labelledby="notes-heading">
+          <h2 id="notes-heading">Notes</h2>
+          <p>This plan uses available machine and dumbbell equipment. Each session begins with a treadmill warm-up and ends with a targeted stretch. Rest 60-90 seconds between sets. Aim to progressively increase weight each week to build strength.</p>
+        </section>
+        
+  </div>
+</body>
+</html>
