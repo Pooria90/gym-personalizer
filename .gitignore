@@ -9,6 +9,7 @@ free-exercise-db/
 
 # Virtual environments
 .venv
+uv.lock
 
 # environment variables
 .env

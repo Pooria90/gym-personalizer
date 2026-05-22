@@ -16,7 +16,6 @@ dependencies = [
     "rail-engine>=0.1.6",
     "rail-engine-ingest>=0.1.6",
     "railtracks>=1.2.2",
-    "railtracks-cli>=1.2.2",
 ]
 
 [tool.hatch.build.targets.wheel]
