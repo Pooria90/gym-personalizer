@@ -1,10 +1,11 @@
 import railtracks as rt
 
-from gym_pt.models import UserProfile, ExerciseQueries, WorkoutPlan
+from gym_pt.models import UserProfile, ExerciseQueries, WorkoutPlan, FeedbackAction
 from .messages import (
+    FOLLOWUP_SYSTEM_MESSAGE,
     INTAKE_SYSTEM_MESSAGE,
-    QUERY_SYSTEM_MESSAGE,
     PLANNER_SYSTEM_MESSAGE,
+    QUERY_SYSTEM_MESSAGE,
 )
 
 
@@ -29,4 +30,12 @@ Planner_Agent = rt.agent_node(
     llm=rt.llm.AnthropicLLM("claude-sonnet-4-6"),
     system_message=PLANNER_SYSTEM_MESSAGE,
     output_schema=WorkoutPlan,
+)
+
+
+FollowUp_Agent = rt.agent_node(
+    name="FollowUp Agent",
+    llm=rt.llm.AnthropicLLM("claude-sonnet-4-6"),
+    system_message=FOLLOWUP_SYSTEM_MESSAGE,
+    output_schema=FeedbackAction,
 )
