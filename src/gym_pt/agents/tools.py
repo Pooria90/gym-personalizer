@@ -116,3 +116,47 @@ async def query_and_retrieve(user_profile: UserProfile) -> list[Exercise]:
                 continue
 
     return exercises
+
+
+async def swap_exercise(
+    exercise: Exercise,
+    profile: UserProfile,
+    *,
+    max_candidates: int = 3,
+) -> list[Exercise]:
+    """
+    Return up to ``max_candidates`` replacements for a single exercise.
+
+    Builds a focused query from the exercise's own category and primary muscles
+    combined with the user's equipment and level, so candidates target the same
+    muscles and respect the user's constraints — without re-running the full
+    intake → retrieve → plan pipeline.
+
+    The Router Agent calls this when the user asks to swap one exercise (e.g.
+    "I can't do bench press, give me something else for chest").
+
+    One extra result is fetched so the original exercise can be filtered out
+    without the returned list going under budget.
+
+    Args:
+        exercise: The exercise to replace.
+        profile: The user's current profile, used to constrain by equipment and level.
+        max_candidates: Maximum number of replacement options to return (default 3).
+
+    Returns:
+        Up to ``max_candidates`` Exercise objects ordered by relevance,
+        excluding the original. Returns an empty list if the search fails.
+    """
+    muscles = " and ".join(exercise.primaryMuscles[:2]) if exercise.primaryMuscles else ""
+    equipment_hint = " ".join(profile.equipment[:2]) if profile.equipment else "body only"
+    query = (
+        f"{exercise.category} {muscles} exercises "
+        f"for {profile.level} using {equipment_hint}"
+    )
+
+    try:
+        results = await search_exercises(query, max_results=max_candidates + 1)
+    except Exception:
+        return []
+
+    return [ex for ex in results if ex.id != exercise.id][:max_candidates]

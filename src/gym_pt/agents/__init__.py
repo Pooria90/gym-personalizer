@@ -1,5 +1,5 @@
 from .agents import Intake_Agent, Planner_Agent, Query_Agent
-from .tools import retrieve_exercises, query_and_retrieve
+from .tools import retrieve_exercises, query_and_retrieve, swap_exercise
 
 __all__ = [
     "Intake_Agent",
@@ -7,4 +7,5 @@ __all__ = [
     "Planner_Agent",
     "retrieve_exercises",
     "query_and_retrieve",
+    "swap_exercise",
 ]
