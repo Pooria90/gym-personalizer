@@ -29,33 +29,45 @@ async def retrieve_exercises(query: str, top_k: int = 3) -> list[Exercise] | Non
 
 def _compute_top_k(profile: UserProfile) -> dict[str, int]:
     """
-    Scale each query's base top_k by a multiplier derived from the user profile.
+    Distribute a per-plan exercise budget across the five query slots
+    proportionally, using the original top_k values as weights.
 
-    Two factors drive the multiplier:
-    - day_scale   = days_per_week / 3   (3-day plan is the baseline → 1.0)
-    - eq_scale    = max(1, len(equipment)) / 2  (2-item list is the baseline → 1.0;
-                    bodyweight-only counts as 1 to avoid a zero denominator)
+    Budget:
+        total_budget = days_per_week * 8
 
-    multiplier = max(1.0, (day_scale + eq_scale) / 2)
+    This is the same constant used by the pool trimmer in e2e.py, so retrieval
+    fetches exactly what the planner will receive. The trim becomes a no-op
+    safety net rather than load-bearing logic, and the two mechanisms can't
+    drift out of sync.
 
-    The average of the two factors is taken so neither dominates. The floor of 1.0
-    ensures the pool never shrinks below the base values — a very short or
-    equipment-light plan gets the defaults, not less.
+    Distribution:
+        The json_schema_extra["top_k"] values (4, 5, 6, 3, 3 — sum = 21) are
+        used as weights. Each slot receives:
+            round(weight / 21 * total_budget), floored at 1.
 
-    Example: days_per_week=5, equipment=['barbell','dumbbell','cable','machine']
-        day_scale  = 5/3  ≈ 1.67
-        eq_scale   = 4/2  = 2.00
-        multiplier = (1.67 + 2.00) / 2 ≈ 1.83
-        primary_query base=5 → round(5 × 1.83) = 9
+    Example: days_per_week=5 → total_budget=40
+        warmup_query    4/21 × 40 ≈  7.6  → 8
+        primary_query   5/21 × 40 ≈  9.5  → 10
+        secondary_query 6/21 × 40 ≈ 11.4  → 11
+        equipment_query 3/21 × 40 ≈  5.7  → 6
+        cooldown_query  3/21 × 40 ≈  5.7  → 6
 
-    Each computed value is also floored at 1 so no query ever requests 0 results.
+    Example: days_per_week=2 → total_budget=16
+        warmup_query    4/21 × 16 ≈  3.0  → 3
+        primary_query   5/21 × 16 ≈  3.8  → 4
+        secondary_query 6/21 × 16 ≈  4.6  → 5
+        equipment_query 3/21 × 16 ≈  2.3  → 2
+        cooldown_query  3/21 × 16 ≈  2.3  → 2
     """
-    day_scale = profile.days_per_week / 3
-    eq_scale = max(1, len(profile.equipment)) / 2
-    multiplier = max(1.0, (day_scale + eq_scale) / 2)
+    total_budget = profile.days_per_week * 8
+    weights = {
+        name: meta.json_schema_extra["top_k"]
+        for name, meta in ExerciseQueries.model_fields.items()
+    }
+    weight_sum = sum(weights.values())  # 4 + 5 + 6 + 3 + 3 = 21
     return {
-        field_name: max(1, round(meta.json_schema_extra["top_k"] * multiplier))
-        for field_name, meta in ExerciseQueries.model_fields.items()
+        name: max(1, round(w / weight_sum * total_budget))
+        for name, w in weights.items()
     }
 
 
