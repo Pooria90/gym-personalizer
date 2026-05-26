@@ -13,7 +13,7 @@ dependencies = [
     "pydantic>=2",
     "pydantic-settings>=2",
     "python-dotenv>=1.0.0",
-    "rail-engine>=0.1.6",
+    "rail-engine>=0.1.6, <0.1.8",
     "rail-engine-ingest>=0.1.6",
     "railtracks>=1.2.2",
 ]
