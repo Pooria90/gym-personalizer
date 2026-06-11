@@ -93,6 +93,11 @@ async def main(user_query: str):
     )
     logger.debug("Retrieved %d exercises", len(exercises))
 
+    # Trim pool to ~8 exercises per planned day to reduce planner prompt noise
+    target_pool = profile.days_per_week * 8
+    exercises = exercises[:target_pool]
+    logger.debug("Pool trimmed to %d exercises (%d days × 8)", len(exercises), profile.days_per_week)
+
     # 3. Planning
     fields_to_keep = [
         "id",
