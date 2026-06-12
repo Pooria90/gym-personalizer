@@ -1,4 +1,4 @@
-from gym_pt.railengine.query_protocol import (
+from gym_pt.retrieval.query_protocol import (
     DefaultSearchQueryBuilder,
     SearchQueryBuilder,
 )
