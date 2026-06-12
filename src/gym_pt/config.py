@@ -47,6 +47,19 @@ class AppSettings(BaseSettings):
 
     engine_pat: str | None = Field(default=None, validation_alias="ENGINE_PAT")
     engine_id: str | None = Field(default=None, validation_alias="ENGINE_ID")
+    openai_api_key: str | None = Field(default=None, validation_alias="OPENAI_API_KEY")
+    embedding_model: str = Field(
+        default="text-embedding-3-small",
+        validation_alias="EMBEDDING_MODEL",
+    )
+    chroma_path: Path = Field(
+        default=_PROJECT_ROOT / ".chroma",
+        validation_alias="CHROMA_PATH",
+    )
+    chroma_collection: str = Field(
+        default="exercises",
+        validation_alias="CHROMA_COLLECTION",
+    )
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
         default="INFO",
         validation_alias="LOG_LEVEL",
