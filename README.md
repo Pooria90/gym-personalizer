@@ -144,8 +144,9 @@ uv sync
 # Configure credentials
 cp .env.example .env
 # Set ANTHROPIC_API_KEY and OPENAI_API_KEY (embeddings).
-# For the legacy Railengine backend: uv sync --extra railengine,
-# then set ENGINE_PAT, ENGINE_ID and RETRIEVAL_BACKEND=railengine.
+# For the legacy Railengine backend set ENGINE_PAT, ENGINE_ID and
+# RETRIEVAL_BACKEND=railengine. (Dev syncs include the SDK via the
+# railengine-dev group; production installs need the railengine extra.)
 
 # Build the local vector store (one-time; idempotent re-runs)
 uv run python scripts/ingest.py

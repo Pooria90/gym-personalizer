@@ -32,6 +32,14 @@ dev = [
     "pytest>=8",
     "pytest-asyncio>=0.24",
 ]
+# Dev twin of the [project.optional-dependencies] railengine extra (keep the
+# pins in sync). As a default group it survives plain `uv sync` / `uv run`,
+# which would otherwise prune the extra and silently skip railengine smoke
+# tests. Production installs (`pip install gym`) still exclude it.
+railengine-dev = [
+    "rail-engine>=0.1.6, <0.1.8",
+    "rail-engine-ingest>=0.1.6",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -42,3 +50,6 @@ markers = [
     "smoke: live end-to-end checks against real APIs (deselected by default)",
 ]
 asyncio_mode = "auto"
+
+[tool.uv]
+default-groups = ["dev", "railengine-dev"]
