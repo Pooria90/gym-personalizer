@@ -26,10 +26,12 @@ class RailtracksRetriever:
         self._runtime = runtime
         self._catalog = catalog
         # NOTE: we are good with loading the whole catalog in memory because it's small (~1.5k exercises) for now,
-        # but if that ever changes we can switch to a lazy loading approach (e.g. SQLite) without affecting the retrieval logic. 
+        # but if that ever changes we can switch to a lazy loading approach (e.g. SQLite) without affecting the retrieval logic.
 
     @classmethod
-    async def create(cls, catalog_path: Path = DEFAULT_CATALOG_PATH) -> RailtracksRetriever:
+    async def create(
+        cls, catalog_path: Path = DEFAULT_CATALOG_PATH
+    ) -> RailtracksRetriever:
         return cls(runtime=await create_runtime(), catalog=load_catalog(catalog_path))
 
     async def search(self, query: str, *, max_results: int = 10) -> list[Exercise]:

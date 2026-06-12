@@ -28,7 +28,9 @@ async def retrieve_exercises(query: str, top_k: int = 3) -> list[Exercise] | Non
     try:
         retriever = await get_retriever()
         result = await retriever.search(query, max_results=top_k)
-        logger.debug("retrieve_exercises(%r, top_k=%d) → %d hit(s)", query, top_k, len(result))
+        logger.debug(
+            "retrieve_exercises(%r, top_k=%d) → %d hit(s)", query, top_k, len(result)
+        )
         return result
     except Exception:
         logger.exception("retrieve_exercises failed for query %r", query)
@@ -163,8 +165,12 @@ async def swap_exercise(
         Up to ``max_candidates`` Exercise objects ordered by relevance,
         excluding the original. Returns an empty list if the search fails.
     """
-    muscles = " and ".join(exercise.primaryMuscles[:2]) if exercise.primaryMuscles else ""
-    equipment_hint = " ".join(profile.equipment[:2]) if profile.equipment else "body only"
+    muscles = (
+        " and ".join(exercise.primaryMuscles[:2]) if exercise.primaryMuscles else ""
+    )
+    equipment_hint = (
+        " ".join(profile.equipment[:2]) if profile.equipment else "body only"
+    )
     query = (
         f"{exercise.category} {muscles} exercises "
         f"for {profile.level} using {equipment_hint}"
