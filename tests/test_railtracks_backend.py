@@ -58,9 +58,7 @@ class TestCatalogMapping:
 
     async def test_deduplicates_repeated_ids(self, exercise_factory):
         catalog = {"A": exercise_factory("A")}
-        runtime = StubRuntime(
-            [_retrieved({"exercise_id": "A"}, r) for r in (1, 2, 3)]
-        )
+        runtime = StubRuntime([_retrieved({"exercise_id": "A"}, r) for r in (1, 2, 3)])
         result = await RailtracksRetriever(runtime, catalog).search("q")
         assert len(result) == 1
 

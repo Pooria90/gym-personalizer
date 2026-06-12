@@ -22,7 +22,7 @@ class RailengineRetriever:
         except ImportError as e:
             raise RuntimeError(
                 "RETRIEVAL_BACKEND=railengine requires the optional rail-engine "
-                'SDK — install it with: uv sync --extra railengine'
+                "SDK — install it with: uv sync --extra railengine"
             ) from e
 
         return await search_exercises(query, max_results=max_results)

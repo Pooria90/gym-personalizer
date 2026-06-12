@@ -12,7 +12,9 @@ pytestmark = pytest.mark.smoke
 
 @needs_railtracks_store
 def test_query_and_retrieve_builds_deduplicated_pool(sample_profile):
-    flow = rt.Flow("Query and Retrieve", entry_point=rt.function_node(query_and_retrieve))
+    flow = rt.Flow(
+        "Query and Retrieve", entry_point=rt.function_node(query_and_retrieve)
+    )
 
     exercises = flow.invoke(sample_profile)
 

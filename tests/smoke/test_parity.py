@@ -57,7 +57,9 @@ async def test_backend_parity_report():
         if not re_hits:
             failures.append(f"railengine returned nothing for {slot!r}")
 
-    header = f"{'query slot':<20} {'rt':>3} {'re':>3} {'jaccard':>8}  categories (rt | re)"
+    header = (
+        f"{'query slot':<20} {'rt':>3} {'re':>3} {'jaccard':>8}  categories (rt | re)"
+    )
     print("\n" + header)
     print("-" * len(header))
     for slot, n_rt, n_re, jac, rt_cats, re_cats in rows:

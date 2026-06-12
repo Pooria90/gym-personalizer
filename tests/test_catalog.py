@@ -60,8 +60,12 @@ class TestExerciseCatalogLoader:
 
     async def test_document_ids_stable_across_runs(self, tiny_dataset):
         path, _ = tiny_dataset
-        first = {doc.source: doc.id async for doc in ExerciseCatalogLoader(path).astream()}
-        second = {doc.source: doc.id async for doc in ExerciseCatalogLoader(path).astream()}
+        first = {
+            doc.source: doc.id async for doc in ExerciseCatalogLoader(path).astream()
+        }
+        second = {
+            doc.source: doc.id async for doc in ExerciseCatalogLoader(path).astream()
+        }
         assert first == second
 
     async def test_metadata_carries_filter_fields(self, tiny_dataset):
