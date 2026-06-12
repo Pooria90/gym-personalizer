@@ -45,6 +45,10 @@ class AppSettings(BaseSettings):
         extra="ignore",
     )
 
+    retrieval_backend: Literal["railtracks", "railengine"] = Field(
+        default="railtracks",
+        validation_alias="RETRIEVAL_BACKEND",
+    )
     engine_pat: str | None = Field(default=None, validation_alias="ENGINE_PAT")
     engine_id: str | None = Field(default=None, validation_alias="ENGINE_ID")
     openai_api_key: str | None = Field(default=None, validation_alias="OPENAI_API_KEY")
