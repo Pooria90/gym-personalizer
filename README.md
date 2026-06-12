@@ -6,8 +6,10 @@ An AI-powered personal trainer built on [Railtracks](https://railtracks.org) and
 ## Overview
 
 `gym-pt` is a three-stage agentic pipeline that turns a plain-English fitness request
-into a structured, day-by-day workout plan. It uses **Railengine** for semantic exercise
-retrieval over a catalog of 873 exercises and **Railtracks** to orchestrate the agents.
+into a structured, day-by-day workout plan. It uses the **Railtracks retrieval runtime**
+(local Chroma vector store) for semantic exercise retrieval over a catalog of 873
+exercises and **Railtracks** to orchestrate the agents. **Railengine** remains available
+as a legacy retrieval backend (`RETRIEVAL_BACKEND=railengine`).
 
 ## Pipeline
 
@@ -17,7 +19,7 @@ flowchart TD
     IA -->|UserProfile| QR
 
     subgraph QR[Query & Retrieve]
-        QA[Query Agent] -->|ExerciseQueries| VS[(Railengine\nVector Store)]
+        QA[Query Agent] -->|ExerciseQueries| VS[(Chroma\nVector Store)]
         VS -->|5 parallel searches| DP[Deduplicated\nexercise pool]
     end
 
@@ -41,8 +43,8 @@ class UserProfile(BaseModel):
 ### Stage 2 — Query & Retrieve
 
 The `Query Agent` generates five targeted semantic search queries from the profile —
-one per session phase. These are fanned out **in parallel** against the Railengine
-vector store and the results are deduplicated into a single exercise pool.
+one per session phase. These are fanned out **in parallel** against the vector store
+and the results are deduplicated into a single exercise pool.
 
 ```python
 class ExerciseQueries(BaseModel):
@@ -53,9 +55,10 @@ class ExerciseQueries(BaseModel):
     cooldown_query: str     # top_k = 3
 ```
 
-Each field carries a fixed `top_k` that controls how many exercises are fetched
-per phase, giving the pool a deliberate composition (21 candidates total before
-deduplication).
+The per-field `top_k` values act as weights: a total budget of
+`days_per_week × 8` exercises is distributed across the five phases
+proportionally, so the pool scales with programme length while keeping a
+deliberate composition.
 
 ### Stage 3 — Planner Agent
 
@@ -108,14 +111,23 @@ src/gym_pt/
 ├── models/
 │   ├── exercise.py        # Exercise schema
 │   └── plan.py            # UserProfile, ExerciseQueries, WorkoutPlan schemas
+├── retrieval/
+│   ├── protocol.py        # ExerciseRetriever protocol (the backend seam)
+│   ├── factory.py         # get_retriever() — RETRIEVAL_BACKEND switch
+│   ├── railtracks_backend.py  # Railtracks runtime + catalog mapping (default)
+│   ├── railengine_backend.py  # Legacy Railengine wrapper
+│   ├── runtime.py         # RetrievalRuntime factory (Chroma + OpenAI embeddings)
+│   └── catalog.py         # Dataset loader + embedding text + id → Exercise lookup
 ├── railengine/
-│   ├── retrieval.py       # search_exercises + filter helpers
+│   ├── retrieval.py       # search_exercises + filter helpers (legacy backend)
 │   └── query_protocol.py  # SearchQueryBuilder protocol
 └── utils/
     └── html.py            # HTML rendering utilities
 scripts/
+├── ingest.py              # Ingest free-exercise-db into the local Chroma store
 ├── e2e.py                 # Full end-to-end run
 ├── smoke_intake.py
+├── smoke_retrieval.py     # Search smoke test (--backend railtracks|railengine)
 ├── smoke_query_and_retrieve.py
 └── smoke_plan.py
 fixtures/
@@ -131,15 +143,22 @@ uv sync
 
 # Configure credentials
 cp .env.example .env
-# Set ANTHROPIC_API_KEY, RAILENGINE_PAT, RAILENGINE_ENGINE_ID
+# Set ANTHROPIC_API_KEY and OPENAI_API_KEY (embeddings).
+# For the legacy Railengine backend also set ENGINE_PAT, ENGINE_ID
+# and RETRIEVAL_BACKEND=railengine.
+
+# Build the local vector store (one-time; idempotent re-runs)
+uv run python scripts/ingest.py
 ```
 
 ## Tech Stack
 
 | Component | Role |
 |---|---|
-| **Railtracks** | Agent orchestration, structured output, tool calling |
-| **Railengine** | Vector search over the 873-exercise catalog |
+| **Railtracks** | Agent orchestration, structured output, tool calling, retrieval runtime |
+| **Chroma** | Local persistent vector store for the 873-exercise catalog |
+| **OpenAI embeddings** | `text-embedding-3-small` for documents and queries |
+| **Railengine** | Legacy retrieval backend (optional, `RETRIEVAL_BACKEND=railengine`) |
 | **Anthropic Claude** | LLM backend for all three agents |
 | **Pydantic v2** | Typed schemas and validation between pipeline stages |
 | **asyncio** | Parallel query fan-out in the retrieval stage |
