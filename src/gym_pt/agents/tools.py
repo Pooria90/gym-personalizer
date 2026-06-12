@@ -1,14 +1,21 @@
 import asyncio
+import logging
+
 import railtracks as rt
 
-from gym_pt.railengine import search_exercises
+from gym_pt.retrieval import get_retriever
 from gym_pt.models import Exercise, UserProfile, ExerciseQueries
 from .agents import Query_Agent
+
+logger = logging.getLogger("gym_pt.agents.tools")
 
 
 async def retrieve_exercises(query: str, top_k: int = 3) -> list[Exercise] | None:
     """
     Retrieves relevant exercises from the database using semantic search.
+
+    Uses the backend configured via RETRIEVAL_BACKEND (railtracks by default,
+    railengine as the legacy fallback).
 
     Args:
         query (str): Natural language description of the desired exercises,
@@ -19,11 +26,14 @@ async def retrieve_exercises(query: str, top_k: int = 3) -> list[Exercise] | Non
         list[Exercise]: A list of matching Exercise objects, or None if the search fails.
     """
     try:
-        result: list[Exercise] = await search_exercises(query, max_results=top_k)
-        # TODO: Add some logs
+        retriever = await get_retriever()
+        result = await retriever.search(query, max_results=top_k)
+        logger.debug(
+            "retrieve_exercises(%r, top_k=%d) → %d hit(s)", query, top_k, len(result)
+        )
         return result
     except Exception:
-        # TODO: Log the exception
+        logger.exception("retrieve_exercises failed for query %r", query)
         return None
 
 
@@ -60,10 +70,16 @@ def _compute_top_k(profile: UserProfile) -> dict[str, int]:
         cooldown_query  3/21 × 16 ≈  2.3  → 2
     """
     total_budget = profile.days_per_week * 8
-    weights = {
-        name: meta.json_schema_extra["top_k"]
-        for name, meta in ExerciseQueries.model_fields.items()
-    }
+    weights: dict[str, int] = {}
+    for name, meta in ExerciseQueries.model_fields.items():
+        extra = meta.json_schema_extra
+        top_k = extra.get("top_k") if isinstance(extra, dict) else None
+        if not isinstance(top_k, int):
+            raise ValueError(
+                f"ExerciseQueries.{name} must carry an integer "
+                "json_schema_extra['top_k'] weight"
+            )
+        weights[name] = top_k
     weight_sum = sum(weights.values())  # 4 + 5 + 6 + 3 + 3 = 21
     return {
         name: max(1, round(w / weight_sum * total_budget))
@@ -104,17 +120,19 @@ async def query_and_retrieve(user_profile: UserProfile) -> list[Exercise]:
 
     seen: set[str] = set()
     exercises: list[Exercise] = []
-    for batch in results:
-        # TODO: Debug log; dangerous area
+    for field_name, batch in zip(ExerciseQueries.model_fields, results):
+        if batch is None:
+            logger.warning("retrieval failed for %s; continuing without it", field_name)
         for ex in batch or []:
             try:
                 if ex.id not in seen:
                     seen.add(ex.id)
                     exercises.append(ex)
             except Exception:
-                # TODO: Track the error here
+                logger.exception("malformed exercise in %s batch: %r", field_name, ex)
                 continue
 
+    logger.debug("query_and_retrieve → %d unique exercise(s)", len(exercises))
     return exercises
 
 
@@ -147,16 +165,22 @@ async def swap_exercise(
         Up to ``max_candidates`` Exercise objects ordered by relevance,
         excluding the original. Returns an empty list if the search fails.
     """
-    muscles = " and ".join(exercise.primaryMuscles[:2]) if exercise.primaryMuscles else ""
-    equipment_hint = " ".join(profile.equipment[:2]) if profile.equipment else "body only"
+    muscles = (
+        " and ".join(exercise.primaryMuscles[:2]) if exercise.primaryMuscles else ""
+    )
+    equipment_hint = (
+        " ".join(profile.equipment[:2]) if profile.equipment else "body only"
+    )
     query = (
         f"{exercise.category} {muscles} exercises "
         f"for {profile.level} using {equipment_hint}"
     )
 
     try:
-        results = await search_exercises(query, max_results=max_candidates + 1)
+        retriever = await get_retriever()
+        results = await retriever.search(query, max_results=max_candidates + 1)
     except Exception:
+        logger.exception("swap_exercise search failed for %r", exercise.name)
         return []
 
     return [ex for ex in results if ex.id != exercise.id][:max_candidates]

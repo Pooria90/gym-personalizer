@@ -4,9 +4,11 @@ from typing import Any, Mapping, cast
 
 import railtracks as rt
 
-from gym_pt.agents import *
-from gym_pt.models import *
-from gym_pt.utils import *
+from gym_pt.agents import Intake_Agent, Planner_Agent, query_and_retrieve
+from gym_pt.utils import (
+    enrich_workout_plan_with_instructions,
+    render_workout_plan_html,
+)
 
 
 # Logging stuff
@@ -96,7 +98,11 @@ async def main(user_query: str):
     # Trim pool to ~8 exercises per planned day to reduce planner prompt noise
     target_pool = profile.days_per_week * 8
     exercises = exercises[:target_pool]
-    logger.debug("Pool trimmed to %d exercises (%d days × 8)", len(exercises), profile.days_per_week)
+    logger.debug(
+        "Pool trimmed to %d exercises (%d days × 8)",
+        len(exercises),
+        profile.days_per_week,
+    )
 
     # 3. Planning
     fields_to_keep = [
