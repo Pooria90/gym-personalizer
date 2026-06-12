@@ -17,5 +17,8 @@ uv.lock
 # railtracks
 .railtracks/
 
+# local Chroma vector store (rebuild with scripts/ingest.py)
+.chroma/
+
 # vscode
 .vscode/

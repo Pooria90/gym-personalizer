@@ -15,7 +15,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "rail-engine>=0.1.6, <0.1.8",
     "rail-engine-ingest>=0.1.6",
-    "railtracks>=1.2.2",
+    "railtracks[retrieval, visual]>=1.4.0",
 ]
 
 [tool.hatch.build.targets.wheel]
