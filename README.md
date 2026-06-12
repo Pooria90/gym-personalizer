@@ -129,12 +129,10 @@ scripts/
 tests/
 ├── test_*.py              # Offline unit tests (run with: uv run pytest)
 ├── support.py             # Shared helpers and smoke-test guards
+├── fixtures/              # Sample JSON for each pipeline stage
 └── smoke/                 # Live checks behind the `smoke` marker
     ├── test_smoke_*.py    # Per-stage agent/retrieval smokes (uv run pytest -m smoke)
     └── test_parity.py     # Side-by-side backend comparison report
-fixtures/
-├── sample_exercise_queries.json
-└── sample_plan.json
 ```
 
 ## Setup
