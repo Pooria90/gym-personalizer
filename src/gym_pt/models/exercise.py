@@ -13,7 +13,3 @@ class Exercise(BaseModel):
     category: str
     images: list[str]
     id: str = Field(..., description="Stable id from the exercise catalog / engine")
-
-
-# Backward-compatible name for code that followed workspace-tmp/retrieve.py
-ExerciseModel = Exercise

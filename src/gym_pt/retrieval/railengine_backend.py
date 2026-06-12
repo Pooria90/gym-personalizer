@@ -2,7 +2,8 @@
 
 Kept as a switchable fallback (``RETRIEVAL_BACKEND=railengine`` in ``.env``).
 Requires ``ENGINE_PAT`` / ``ENGINE_ID`` credentials and a populated remote
-vector store (see ``workspace-tmp/ingest.py``).
+vector store. Railengine ingestion tooling is not maintained in ``scripts/``;
+it will be promoted there if/when the Railengine SDK migration happens.
 """
 
 from __future__ import annotations
@@ -14,8 +15,14 @@ class RailengineRetriever:
     """``ExerciseRetriever`` backed by the remote Railengine vector store."""
 
     async def search(self, query: str, *, max_results: int = 10) -> list[Exercise]:
-        # Imported lazily so the railtracks path never touches the rail-engine
-        # SDK (which `pyproject.toml` will eventually demote to an extra).
-        from gym_pt.railengine import search_exercises
+        # Imported lazily: the rail-engine SDK is an optional extra and the
+        # railtracks path must never touch it.
+        try:
+            from gym_pt.railengine import search_exercises
+        except ImportError as e:
+            raise RuntimeError(
+                "RETRIEVAL_BACKEND=railengine requires the optional rail-engine "
+                'SDK — install it with: uv sync --extra railengine'
+            ) from e
 
         return await search_exercises(query, max_results=max_results)

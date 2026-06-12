@@ -13,9 +13,15 @@ dependencies = [
     "pydantic>=2",
     "pydantic-settings>=2",
     "python-dotenv>=1.0.0",
+    "railtracks[retrieval, visual]>=1.4.0",
+]
+
+[project.optional-dependencies]
+# Legacy retrieval backend (RETRIEVAL_BACKEND=railengine).
+# Install with: uv sync --extra railengine
+railengine = [
     "rail-engine>=0.1.6, <0.1.8",
     "rail-engine-ingest>=0.1.6",
-    "railtracks[retrieval, visual]>=1.4.0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -24,4 +30,15 @@ packages = ["src/gym_pt"]
 [dependency-groups]
 dev = [
     "pytest>=8",
+    "pytest-asyncio>=0.24",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Plain `pytest` runs only offline, deterministic tests. Smoke tests hit live
+# LLM APIs / retrieval backends and cost money: opt in with `pytest -m smoke`.
+addopts = "-m 'not smoke'"
+markers = [
+    "smoke: live end-to-end checks against real APIs (deselected by default)",
+]
+asyncio_mode = "auto"
