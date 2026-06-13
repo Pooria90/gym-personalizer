@@ -117,22 +117,22 @@ src/gym_pt/
 │   ├── railtracks_backend.py  # Railtracks runtime + catalog mapping (default)
 │   ├── railengine_backend.py  # Legacy Railengine wrapper
 │   ├── runtime.py         # RetrievalRuntime factory (Chroma + OpenAI embeddings)
-│   └── catalog.py         # Dataset loader + embedding text + id → Exercise lookup
-├── railengine/
-│   ├── retrieval.py       # search_exercises + filter helpers (legacy backend)
+│   ├── catalog.py         # Dataset loader + embedding text + id → Exercise lookup
 │   └── query_protocol.py  # SearchQueryBuilder protocol
+├── railengine/
+│   └── retrieval.py       # search_exercises + filter helpers (legacy backend)
 └── utils/
     └── html.py            # HTML rendering utilities
 scripts/
 ├── ingest.py              # Ingest free-exercise-db into the local Chroma store
-├── e2e.py                 # Full end-to-end run
-├── smoke_intake.py
-├── smoke_retrieval.py     # Search smoke test (--backend railtracks|railengine)
-├── smoke_query_and_retrieve.py
-└── smoke_plan.py
-fixtures/
-├── sample_exercise_queries.json
-└── sample_plan.json
+└── e2e.py                 # Full end-to-end run
+tests/
+├── test_*.py              # Offline unit tests (run with: uv run pytest)
+├── support.py             # Shared helpers and smoke-test guards
+├── fixtures/              # Sample JSON for each pipeline stage
+└── smoke/                 # Live checks behind the `smoke` marker
+    ├── test_smoke_*.py    # Per-stage agent/retrieval smokes (uv run pytest -m smoke)
+    └── test_parity.py     # Side-by-side backend comparison report
 ```
 
 ## Setup
@@ -144,11 +144,20 @@ uv sync
 # Configure credentials
 cp .env.example .env
 # Set ANTHROPIC_API_KEY and OPENAI_API_KEY (embeddings).
-# For the legacy Railengine backend also set ENGINE_PAT, ENGINE_ID
-# and RETRIEVAL_BACKEND=railengine.
+# For the legacy Railengine backend set ENGINE_PAT, ENGINE_ID and
+# RETRIEVAL_BACKEND=railengine. (Dev syncs include the SDK via the
+# railengine-dev group; production installs need the railengine extra.)
 
 # Build the local vector store (one-time; idempotent re-runs)
 uv run python scripts/ingest.py
+```
+
+## Testing
+
+```bash
+uv run pytest             # offline unit tests (free, deterministic)
+uv run pytest -m smoke    # live smoke tests — hit LLM/embedding APIs
+uv run pytest -m smoke tests/smoke/test_parity.py -s   # backend parity report
 ```
 
 ## Tech Stack

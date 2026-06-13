@@ -2,8 +2,7 @@
 """Ingest the free-exercise-db catalog into the local Chroma vector store.
 
 Idempotent: re-runs skip exercises whose content is unchanged (content-hash
-upsert), so this is safe to run after dataset updates. Replaces the Railengine
-scratch ingester in workspace-tmp/ingest.py as the primary path.
+upsert), so this is safe to run after dataset updates.
 """
 
 from __future__ import annotations
