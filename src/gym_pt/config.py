@@ -64,6 +64,10 @@ class AppSettings(BaseSettings):
         default="exercises",
         validation_alias="CHROMA_COLLECTION",
     )
+    state_path: Path = Field(
+        default=_PROJECT_ROOT / ".state",
+        validation_alias="STATE_PATH",
+    )
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
         default="INFO",
         validation_alias="LOG_LEVEL",
