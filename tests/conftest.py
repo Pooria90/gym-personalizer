@@ -4,7 +4,13 @@ from pathlib import Path
 import pytest
 
 from gym_pt.config import get_settings
-from gym_pt.models import UserProfile
+from gym_pt.models import (
+    PlannedExercise,
+    UserProfile,
+    WorkoutDay,
+    WorkoutPlan,
+)
+from gym_pt.service import Session
 from tests.support import FIXTURES_DIR, make_exercise
 
 
@@ -65,3 +71,33 @@ def tiny_dataset(tmp_path: Path):
     path = tmp_path / "exercises.json"
     path.write_text(json.dumps([ex.model_dump() for ex in exercises]))
     return path, {ex.id: ex for ex in exercises}
+
+
+@pytest.fixture
+def sample_session(sample_profile) -> Session:
+    """A small, self-consistent Session (plan references the pooled exercises)."""
+    exercises = [
+        make_exercise("Barbell_Squat", name="Barbell Squat", equipment="barbell"),
+        make_exercise("Push_Up", name="Push Up", equipment=None),
+    ]
+    plan = WorkoutPlan(
+        title="Test Plan",
+        days=[
+            WorkoutDay(
+                day_index=1,
+                focus="full body",
+                exercises=[
+                    PlannedExercise(
+                        exercise_id="Barbell_Squat",
+                        name="Barbell Squat",
+                        sets=3,
+                        reps="5",
+                    ),
+                    PlannedExercise(
+                        exercise_id="Push_Up", name="Push Up", sets=3, reps="10"
+                    ),
+                ],
+            )
+        ],
+    )
+    return Session(profile=sample_profile, exercises=exercises, plan=plan)
