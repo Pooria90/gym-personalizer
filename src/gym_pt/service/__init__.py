@@ -9,21 +9,39 @@ from gym_pt.service.pipeline import (
     generate_plan,
     validate_plan_exercise_ids,
 )
-from gym_pt.service.service import create_session
+from gym_pt.service.errors import (
+    ExerciseNotInSession,
+    InvalidReplacement,
+    ServiceError,
+    SessionNotFound,
+)
+from gym_pt.service.service import (
+    apply_swap,
+    create_session,
+    get_plan,
+    recommend_swaps,
+)
 from gym_pt.service.sessions import Session, SessionStore, SnapshotSessionStore
 from gym_pt.service.snapshot import JsonSnapshot
 
 __all__ = [
+    "ExerciseNotInSession",
+    "InvalidReplacement",
     "JsonSnapshot",
     "Memory",
     "MemoryEvent",
     "MemoryEventType",
     "PlanResult",
+    "ServiceError",
     "Session",
+    "SessionNotFound",
     "SessionStore",
     "SnapshotMemory",
     "SnapshotSessionStore",
+    "apply_swap",
     "create_session",
     "generate_plan",
+    "get_plan",
+    "recommend_swaps",
     "validate_plan_exercise_ids",
 ]
