@@ -3,7 +3,7 @@
 A session is the stateful context a conversation needs: the profile, the
 retrieved exercise pool (kept for swaps + plan validation), and the live
 `WorkoutPlan`. `SessionStore` is the seam; `SnapshotSessionStore` is the
-JSON-backed implementation for now, swapped for a relational store later.
+JSON-backed implementation.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ class Session(BaseModel):
 
 @runtime_checkable
 class SessionStore(Protocol):
-    """Persistence contract for sessions (RQ-3 adds a relational impl)."""
+    """Persistence contract for sessions."""
 
     async def create(self, session: Session) -> None: ...
     async def get(self, session_id: str) -> Session | None: ...
@@ -73,3 +73,6 @@ class SnapshotSessionStore:
         self._snapshot.save(
             {sid: s.model_dump(mode="json") for sid, s in self._sessions.items()}
         )
+
+
+# TODO: Add a relational store implementation.

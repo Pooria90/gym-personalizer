@@ -1,6 +1,6 @@
 """Service-layer exceptions.
 
-Raised by the verbs in `service.py`; the API layer (RQ-5 step 4) maps them to
+Raised by the verbs in `service.py`; the API layer maps them to
 HTTP status codes (`SessionNotFound` → 404, the rest → 400/422).
 """
 

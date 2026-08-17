@@ -1,7 +1,7 @@
 """Plan-generation pipeline, extracted from scripts/e2e.py.
 
 The single importable orchestration path (intake → retrieve → trim → plan →
-validate) shared by the CLI and the future API. HTML rendering stays a
+validate) shared by the CLI and the API. HTML rendering stays a
 caller/presentation concern and lives outside this module.
 """
 
@@ -29,7 +29,7 @@ _PLANNER_FIELDS = ("id", "equipment", "primaryMuscles", "secondaryMuscles", "cat
 
 
 class PlanResult(BaseModel):
-    """Typed result of a full pipeline run (was an untyped dict in e2e.py)."""
+    """Typed result of a full pipeline run."""
 
     profile: UserProfile
     exercises: list[Exercise]  # the trimmed retrieved pool the plan was built from

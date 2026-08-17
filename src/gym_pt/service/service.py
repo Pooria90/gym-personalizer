@@ -1,4 +1,4 @@
-"""Shared service verbs — the operations both the CLI and the API call.
+"""Shared service verbs: the operations both the CLI and the API call.
 
 No HTTP here. Stores are passed in (dependency injection) so the caller owns
 persistence lifecycle: the CLI builds snapshot-backed stores per run; the API
@@ -33,7 +33,7 @@ async def create_session(
 
     Wraps the `PlanResult` in a `Session` (the live record of what the user is
     doing), persists it, and records a `PLAN_CREATED` memory event carrying only
-    ids/counts — not the full plan, which already lives on the session.
+    ids/counts; not the full plan, which already lives on the session.
     """
     result = await generate_plan(user_query)
     session = Session(
@@ -102,7 +102,7 @@ async def recommend_swaps(
     store: SessionStore,
     max_candidates: int = 3,
 ) -> list[Exercise]:
-    """Suggest replacements for one planned exercise — does not change the plan.
+    """Suggest replacements for one planned exercise; does not change the plan.
 
     Raises `SessionNotFound` / `ExerciseNotInSession`.
     """

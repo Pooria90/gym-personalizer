@@ -1,11 +1,4 @@
-"""Cheap JSON persistence for a single store's state.
-
-`load()` returns the parsed JSON (or a caller-supplied default if the file is
-absent); `save()` writes atomically — temp file + ``os.replace`` — so a crash
-mid-write can't corrupt the existing snapshot. Single-writer only (no locking,
-no transactions); adequate for single-process dev and replaced by a real
-database / native Railtracks memory later.
-"""
+"""Cheap JSON persistence for a single store's state."""
 
 from __future__ import annotations
 
@@ -15,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 
+# NOTE: This is adequate for single-process dev only.
 class JsonSnapshot:
     """Atomic load/save of one store's JSON-serializable state to a file."""
 
@@ -34,8 +28,15 @@ class JsonSnapshot:
     def save(self, data: Any) -> None:
         """Atomically overwrite the file with ``data`` (JSON-serialized)."""
         self._path.parent.mkdir(parents=True, exist_ok=True)
+
+        # to avoid mid-write corruption, we write to a temp file first
         tmp = self._path.with_name(self._path.name + ".tmp")
         tmp.write_text(
             json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
         )
+
+        # then we write the temp file to the target path
         os.replace(tmp, self._path)  # atomic on the same filesystem
+
+
+# TODO: Add a database-backed implementation, or Railtracks native memory.

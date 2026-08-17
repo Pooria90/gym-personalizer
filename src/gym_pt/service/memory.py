@@ -1,12 +1,12 @@
 """Memory seam: the durable record of what the user does in the gym.
 
-Distinct from a session — memory spans sessions (plans generated, swaps made).
+Distinct from a session: memory spans sessions (plans generated, swaps made).
 NOTE: For now, we define a minimal protocol and back it with a JSON snapshot.
 Later, an adapter implements `Memory` and replaces `SnapshotMemory` 
 with no caller changes.
 
 Events stay small by design: an event type, the session it belongs to, a
-timestamp, and a payload of ids — not full plan/exercise objects.
+timestamp, and a payload of ids; not full plan/exercise objects.
 """
 
 from __future__ import annotations
