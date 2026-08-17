@@ -10,11 +10,13 @@ from __future__ import annotations
 import logging
 
 from gym_pt.agents import swap_exercise
-from gym_pt.models import Exercise, WorkoutPlan
+from gym_pt.models import Exercise, PlannedExercise, WorkoutPlan
 from gym_pt.service.errors import (
     ExerciseNotInSession,
     InvalidReplacement,
+    NoPendingRecommendations,
     SessionNotFound,
+    SlotNotFound,
 )
 from gym_pt.service.memory import Memory, MemoryEvent, MemoryEventType
 from gym_pt.service.pipeline import generate_plan
@@ -80,13 +82,13 @@ def _find_in_pool(session: Session, exercise_id: str) -> Exercise:
     raise ExerciseNotInSession(session.id, exercise_id)
 
 
-async def _candidates(
-    session: Session, exercise_id: str, max_candidates: int
-) -> list[Exercise]:
-    target = _find_in_pool(session, exercise_id)
-    return await swap_exercise(
-        target, session.profile, max_candidates=max_candidates
-    )
+def _find_slot(session: Session, slot_id: str) -> PlannedExercise:
+    """Return the one planned exercise carrying ``slot_id``."""
+    for day in session.plan.days:
+        for planned in day.exercises:
+            if planned.slot_id == slot_id:
+                return planned
+    raise SlotNotFound(session.id, slot_id)
 
 
 async def get_plan(session_id: str, *, store: SessionStore) -> WorkoutPlan:
@@ -97,55 +99,83 @@ async def get_plan(session_id: str, *, store: SessionStore) -> WorkoutPlan:
 
 async def recommend_swaps(
     session_id: str,
-    exercise_id: str,
+    slot_id: str,
     *,
     store: SessionStore,
-    max_candidates: int = 3,
 ) -> list[Exercise]:
-    """Suggest replacements for one planned exercise; does not change the plan.
+    """Suggest replacements for one planned slot; does not change the plan.
 
-    Raises `SessionNotFound` / `ExerciseNotInSession`.
+    The candidates are stashed on the session so `apply_swap` can honor the
+    user's pick without a second retrieval call — which means this *does*
+    persist the session, even though the plan itself is untouched. Calling it
+    again for the same slot replaces the stashed set.
+
+    Raises `SessionNotFound` / `SlotNotFound`.
     """
     session = await _require_session(session_id, store)
-    return await _candidates(session, exercise_id, max_candidates)
+    slot = _find_slot(session, slot_id)
+    target = _find_in_pool(session, slot.exercise_id)
+
+    candidates = await swap_exercise(target, session.profile)
+    session.pending_swaps[slot_id] = candidates
+    await store.update(session)
+
+    logger.debug(
+        "Session %s slot %s (%s): %d candidate(s)",
+        session.id,
+        slot_id,
+        slot.exercise_id,
+        len(candidates),
+    )
+    return candidates
 
 
 async def apply_swap(
     session_id: str,
-    exercise_id: str,
+    slot_id: str,
     replacement_id: str,
     *,
     store: SessionStore,
     memory: Memory,
-    max_candidates: int = 3,
 ) -> WorkoutPlan:
-    """Replace one exercise with a chosen recommendation, in place.
+    """Replace the exercise in one planned slot with a chosen recommendation.
 
-    Mutates every occurrence of ``exercise_id`` in the stored `WorkoutPlan`
-    (the prescription — sets/reps — is kept; only the movement changes), adds
-    the replacement to the session pool so the plan stays valid, persists the
-    session, and records a `SWAP_APPLIED` event. Does **not** re-run intake or
-    the planner — only one exercise changes.
+    Scoped to that single occurrence — the same exercise on another day is left
+    alone — and the prescription (sets/reps) carries over, since only the
+    movement changes. Adds the replacement to the session pool so the plan stays
+    valid, persists the session, and records a `SWAP_APPLIED` event. Does **not**
+    re-run intake or the planner.
 
-    ``replacement_id`` must be one of the current recommendations; the candidate
-    set is re-derived here (one retrieval call, same ``max_candidates``) so the
-    chosen replacement arrives as a full `Exercise` without a backend-specific
-    by-id lookup. Raises `SessionNotFound` / `ExerciseNotInSession` /
+    ``replacement_id`` must come from this slot's pending recommendations, so
+    `recommend_swaps` has to run first. Re-applying a swap that already landed
+    is a no-op, which keeps HTTP retries safe.
+
+    Raises `SessionNotFound` / `SlotNotFound` / `NoPendingRecommendations` /
     `InvalidReplacement`.
     """
     session = await _require_session(session_id, store)
-    candidates = await _candidates(session, exercise_id, max_candidates)
+    slot = _find_slot(session, slot_id)
+
+    if slot.exercise_id == replacement_id:
+        # Already applied: a retried request, not a new swap. Raising here
+        # would fail an operation that actually succeeded.
+        return session.plan
+
+    candidates = session.pending_swaps.get(slot_id)
+    if not candidates:
+        raise NoPendingRecommendations(session.id, slot_id)
     replacement = next((c for c in candidates if c.id == replacement_id), None)
     if replacement is None:
-        raise InvalidReplacement(exercise_id, replacement_id)
+        raise InvalidReplacement(slot_id, replacement_id)
 
-    occurrences = _replace_in_plan(session.plan, exercise_id, replacement)
-    if occurrences == 0:
-        # In the pool but not actually planned — nothing to swap.
-        raise ExerciseNotInSession(session.id, exercise_id)
+    previous_id = slot.exercise_id
+    slot.exercise_id = replacement.id
+    slot.name = replacement.name
 
     if replacement.id not in {ex.id for ex in session.exercises}:
         session.exercises.append(replacement)
+    # Stale now that the slot holds a different movement.
+    session.pending_swaps.pop(slot_id, None)
 
     await store.update(session)
     await memory.record(
@@ -153,31 +183,17 @@ async def apply_swap(
             type=MemoryEventType.SWAP_APPLIED,
             session_id=session.id,
             payload={
-                "from": exercise_id,
-                "to": replacement_id,
-                "occurrences": occurrences,
+                "slot_id": slot_id,
+                "from": previous_id,
+                "to": replacement.id,
             },
         )
     )
     logger.info(
-        "Session %s: swapped %s → %s (%d occurrence(s))",
+        "Session %s: slot %s swapped %s → %s",
         session.id,
-        exercise_id,
-        replacement_id,
-        occurrences,
+        slot_id,
+        previous_id,
+        replacement.id,
     )
     return session.plan
-
-
-def _replace_in_plan(
-    plan: WorkoutPlan, old_id: str, replacement: Exercise
-) -> int:
-    """Point every planned slot for ``old_id`` at ``replacement``; return count."""
-    n = 0
-    for day in plan.days:
-        for pe in day.exercises:
-            if pe.exercise_id == old_id:
-                pe.exercise_id = replacement.id
-                pe.name = replacement.name
-                n += 1
-    return n

@@ -32,6 +32,7 @@ class Session(BaseModel):
     plan: WorkoutPlan  # live record of what the user is doing in the gym
     id: str = Field(default_factory=_new_id)
     created_at: datetime = Field(default_factory=_now)
+    pending_swaps: dict[str, list[Exercise]] = Field(default_factory=dict)
 
 
 @runtime_checkable

@@ -12,8 +12,10 @@ from gym_pt.service.pipeline import (
 from gym_pt.service.errors import (
     ExerciseNotInSession,
     InvalidReplacement,
+    NoPendingRecommendations,
     ServiceError,
     SessionNotFound,
+    SlotNotFound,
 )
 from gym_pt.service.service import (
     apply_swap,
@@ -31,11 +33,13 @@ __all__ = [
     "Memory",
     "MemoryEvent",
     "MemoryEventType",
+    "NoPendingRecommendations",
     "PlanResult",
     "ServiceError",
     "Session",
     "SessionNotFound",
     "SessionStore",
+    "SlotNotFound",
     "SnapshotMemory",
     "SnapshotSessionStore",
     "apply_swap",
