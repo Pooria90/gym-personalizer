@@ -136,14 +136,16 @@ async def query_and_retrieve(user_profile: UserProfile) -> list[Exercise]:
     return exercises
 
 
+# TODO: Revisit if the UI ever needs "show me more options".
+_MAX_SWAP_CANDIDATES = 3
+
+
 async def swap_exercise(
     exercise: Exercise,
     profile: UserProfile,
-    *,
-    max_candidates: int = 3,
 ) -> list[Exercise]:
     """
-    Return up to ``max_candidates`` replacements for a single exercise.
+    Return up to three replacements for a single exercise.
 
     Builds a focused query from the exercise's own category and primary muscles
     combined with the user's equipment and level, so candidates target the same
@@ -159,10 +161,9 @@ async def swap_exercise(
     Args:
         exercise: The exercise to replace.
         profile: The user's current profile, used to constrain by equipment and level.
-        max_candidates: Maximum number of replacement options to return (default 3).
 
     Returns:
-        Up to ``max_candidates`` Exercise objects ordered by relevance,
+        Up to ``_MAX_SWAP_CANDIDATES`` Exercise objects ordered by relevance,
         excluding the original. Returns an empty list if the search fails.
     """
     muscles = (
@@ -178,9 +179,11 @@ async def swap_exercise(
 
     try:
         retriever = await get_retriever()
-        results = await retriever.search(query, max_results=max_candidates + 1)
+        results = await retriever.search(
+            query, max_results=_MAX_SWAP_CANDIDATES + 1
+        )
     except Exception:
         logger.exception("swap_exercise search failed for %r", exercise.name)
         return []
 
-    return [ex for ex in results if ex.id != exercise.id][:max_candidates]
+    return [ex for ex in results if ex.id != exercise.id][:_MAX_SWAP_CANDIDATES]
