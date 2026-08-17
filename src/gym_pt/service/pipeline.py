@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any, Mapping, cast
+from uuid import uuid4
 
 import railtracks as rt
 from pydantic import BaseModel
@@ -84,6 +85,17 @@ def validate_plan_exercise_ids(plan: Mapping[str, Any], exercises: list) -> None
     )
 
 
+def _assign_slot_ids(plan: WorkoutPlan) -> None:
+    """Stamp a fresh ``slot_id`` on every planned exercise, in place.
+
+    Overwrites whatever the planner emitted: ``slot_id`` is an internal handle
+    the service owns, and ids invented by an LLM could collide or repeat.
+    """
+    for day in plan.days:
+        for planned in day.exercises:
+            planned.slot_id = str(uuid4())
+
+
 @rt.function_node
 async def _run_pipeline(user_query: str) -> PlanResult:
     # 1. Intake: free text → UserProfile
@@ -115,6 +127,9 @@ async def _run_pipeline(user_query: str) -> PlanResult:
     plan_query = {"profile": profile, "exercises": filtered_exercises}
     plan_output = await rt.call(Planner_Agent, str(plan_query))
     plan: WorkoutPlan = plan_output.structured
+
+    # Give every occurrence its own stable handle so swaps can target one slot.
+    _assign_slot_ids(plan)
 
     # Guard against hallucinated exercises before returning.
     validate_plan_exercise_ids(plan.model_dump(), exercises)
