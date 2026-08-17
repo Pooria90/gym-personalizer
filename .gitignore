@@ -20,5 +20,8 @@ uv.lock
 # local Chroma vector store (rebuild with scripts/ingest.py)
 .chroma/
 
+# local JSON state snapshots (sessions, memory) — dev persistence, not source
+.state/
+
 # vscode
 .vscode/

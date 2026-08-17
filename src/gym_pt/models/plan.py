@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
@@ -71,6 +72,10 @@ class PlannedExercise(BaseModel):
     name: str
     sets: int | None = None
     reps: str | None = None
+    slot_id: str = Field(
+        default_factory=lambda: str(uuid4()),
+        description="Internal; assigned by the service.",
+    )
 
 
 class WorkoutDay(BaseModel):

@@ -74,8 +74,11 @@ class WorkoutPlan(BaseModel):
 class WorkoutDay(BaseModel):
     day_index: int
     focus: str | None
-    exercises: list[PlannedExercise]   # each has exercise_id, sets, reps
+    exercises: list[PlannedExercise]   # each has slot_id, exercise_id, sets, reps
 ```
+
+Each `PlannedExercise` carries a `slot_id` identifying that one occurrence, so
+the same movement on two days can be swapped independently.
 
 The plan is validated against the retrieved exercise IDs before being returned —
 the planner is not allowed to invent exercises outside the pool.
@@ -86,19 +89,23 @@ the planner is not allowed to invent exercises outside the pool.
 uv run python scripts/e2e.py
 ```
 
-Or invoke programmatically:
+Or invoke programmatically — orchestration lives in `gym_pt.service`, so the CLI
+and the future HTTP API share one path:
 
 ```python
-from scripts.e2e import flow
+import asyncio
+from gym_pt.service import generate_plan
 
-result = flow.invoke(
+result = asyncio.run(generate_plan(
     "Intermediate plan, 3 days per week, strength training, "
     "dumbbells and machines."
-)
-# result keys: "profile", "exercises", "plan"
+))
+# PlanResult(profile=UserProfile, exercises=[Exercise], plan=WorkoutPlan)
 ```
 
-The pipeline also renders a standalone HTML workout card to `metadata/e2e_plan.html`.
+`scripts/e2e.py` wraps this in `create_session`, which additionally persists the
+session and logs a memory event to `.state/` (gitignored JSON snapshots), then
+renders a standalone HTML workout card to `metadata/e2e_plan.html`.
 
 ## Project Structure
 
@@ -106,8 +113,15 @@ The pipeline also renders a standalone HTML workout card to `metadata/e2e_plan.h
 src/gym_pt/
 ├── agents/
 │   ├── agents.py          # Intake, Query, and Planner agent definitions
-│   ├── tools.py           # retrieve_exercises, query_and_retrieve
+│   ├── tools.py           # retrieve_exercises, query_and_retrieve, swap_exercise
 │   └── messages.py        # System prompts for all three agents
+├── service/               # Shared by the CLI and the (upcoming) HTTP API
+│   ├── pipeline.py        # generate_plan() — the orchestration, no HTTP/HTML
+│   ├── service.py         # create_session, get_plan, recommend_swaps, apply_swap
+│   ├── sessions.py        # Session model + SessionStore seam (snapshot-backed)
+│   ├── memory.py          # Memory protocol + JSON impl (activity log)
+│   ├── snapshot.py        # Atomic JSON load/save behind both stores
+│   └── errors.py          # Service exceptions (the API maps these to statuses)
 ├── models/
 │   ├── exercise.py        # Exercise schema
 │   └── plan.py            # UserProfile, ExerciseQueries, WorkoutPlan schemas
