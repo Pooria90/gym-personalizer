@@ -6,12 +6,13 @@ import pytest
 
 import gym_pt.service.service as service_mod
 from gym_pt.service import (
-    ExerciseNotInSession,
     InvalidReplacement,
     JsonSnapshot,
     MemoryEventType,
+    NoPendingRecommendations,
     PlanResult,
     SessionNotFound,
+    SlotNotFound,
     SnapshotMemory,
     SnapshotSessionStore,
     apply_swap,
@@ -94,103 +95,228 @@ class TestGetPlan:
 
 
 def _stub_swap_tool(monkeypatch, candidates):
-    async def fake_swap(exercise, profile, *, max_candidates=3):
-        return candidates[:max_candidates]
+    async def fake_swap(exercise, profile):
+        return list(candidates)
 
     monkeypatch.setattr(service_mod, "swap_exercise", fake_swap)
 
 
+def _slot(plan, slot_id):
+    return next(
+        pe for day in plan.days for pe in day.exercises if pe.slot_id == slot_id
+    )
+
+
 class TestRecommendSwaps:
-    async def test_returns_candidates(self, tmp_path, monkeypatch, sample_session):
+    async def test_returns_and_stashes_candidates(
+        self, tmp_path, monkeypatch, sample_session
+    ):
         candidates = [make_exercise("Goblet_Squat"), make_exercise("Hack_Squat")]
         _stub_swap_tool(monkeypatch, candidates)
         store = _store(tmp_path)
         await store.create(sample_session)
 
         result = await recommend_swaps(
-            sample_session.id, "Barbell_Squat", store=store
+            sample_session.id, "slot-squat-d1", store=store
         )
         assert [e.id for e in result] == ["Goblet_Squat", "Hack_Squat"]
 
-    async def test_exercise_not_in_pool_raises(
+        # stashed on the session so apply_swap needs no second retrieval
+        stored = await store.get(sample_session.id)
+        assert [e.id for e in stored.pending_swaps["slot-squat-d1"]] == [
+            "Goblet_Squat",
+            "Hack_Squat",
+        ]
+
+    async def test_leaves_plan_untouched(
+        self, tmp_path, monkeypatch, sample_session
+    ):
+        _stub_swap_tool(monkeypatch, [make_exercise("Goblet_Squat")])
+        store = _store(tmp_path)
+        await store.create(sample_session)
+
+        await recommend_swaps(sample_session.id, "slot-squat-d1", store=store)
+
+        plan = await get_plan(sample_session.id, store=store)
+        assert _slot(plan, "slot-squat-d1").exercise_id == "Barbell_Squat"
+
+    async def test_unknown_slot_raises(
         self, tmp_path, monkeypatch, sample_session
     ):
         _stub_swap_tool(monkeypatch, [])
         store = _store(tmp_path)
         await store.create(sample_session)
-        with pytest.raises(ExerciseNotInSession):
-            await recommend_swaps(sample_session.id, "Not_In_Pool", store=store)
+        with pytest.raises(SlotNotFound):
+            await recommend_swaps(sample_session.id, "no-such-slot", store=store)
 
     async def test_unknown_session_raises(self, tmp_path, monkeypatch):
         _stub_swap_tool(monkeypatch, [])
         with pytest.raises(SessionNotFound):
-            await recommend_swaps("nope", "Barbell_Squat", store=_store(tmp_path))
+            await recommend_swaps("nope", "slot-squat-d1", store=_store(tmp_path))
 
 
 class TestApplySwap:
-    async def test_mutates_plan_and_records_event(
+    async def _recommend(self, monkeypatch, store, session, slot_id, candidates):
+        _stub_swap_tool(monkeypatch, candidates)
+        await recommend_swaps(session.id, slot_id, store=store)
+
+    async def test_swaps_one_occurrence_only(
         self, tmp_path, monkeypatch, sample_session
     ):
         replacement = make_exercise("Goblet_Squat", name="Goblet Squat")
-        _stub_swap_tool(monkeypatch, [replacement])
         store = _store(tmp_path)
         memory = _memory(tmp_path)
         await store.create(sample_session)
+        await self._recommend(
+            monkeypatch, store, sample_session, "slot-squat-d1", [replacement]
+        )
 
         plan = await apply_swap(
             sample_session.id,
-            "Barbell_Squat",
+            "slot-squat-d1",
             "Goblet_Squat",
             store=store,
             memory=memory,
         )
 
-        # plan now references the replacement, with the prescription preserved
-        planned = [pe for day in plan.days for pe in day.exercises]
-        squat = next(pe for pe in planned if pe.exercise_id == "Goblet_Squat")
-        assert squat.name == "Goblet Squat"
-        assert squat.sets == 3 and squat.reps == "5"
-        assert all(pe.exercise_id != "Barbell_Squat" for pe in planned)
+        # the targeted slot changed movement but kept its prescription
+        swapped = _slot(plan, "slot-squat-d1")
+        assert swapped.exercise_id == "Goblet_Squat"
+        assert swapped.name == "Goblet Squat"
+        assert swapped.sets == 3 and swapped.reps == "5"
 
-        # replacement added to the pool so the plan stays valid
-        assert "Goblet_Squat" in {ex.id for ex in (await store.get(sample_session.id)).exercises}
+        # the same exercise on day 2 is untouched — this is the whole point
+        untouched = _slot(plan, "slot-squat-d2")
+        assert untouched.exercise_id == "Barbell_Squat"
+        assert untouched.sets == 5 and untouched.reps == "3"
 
-        # SWAP_APPLIED event with ids-only payload
-        events = await memory.history()
-        assert events[-1].type == MemoryEventType.SWAP_APPLIED
-        assert events[-1].payload == {
-            "from": "Barbell_Squat",
-            "to": "Goblet_Squat",
-            "occurrences": 1,
-        }
-
-    async def test_invalid_replacement_raises(
+    async def test_updates_pool_memory_and_clears_pending(
         self, tmp_path, monkeypatch, sample_session
     ):
-        _stub_swap_tool(monkeypatch, [make_exercise("Goblet_Squat")])
         store = _store(tmp_path)
         memory = _memory(tmp_path)
         await store.create(sample_session)
+        await self._recommend(
+            monkeypatch,
+            store,
+            sample_session,
+            "slot-squat-d1",
+            [make_exercise("Goblet_Squat", name="Goblet Squat")],
+        )
+
+        await apply_swap(
+            sample_session.id,
+            "slot-squat-d1",
+            "Goblet_Squat",
+            store=store,
+            memory=memory,
+        )
+
+        stored = await store.get(sample_session.id)
+        # replacement joined the pool so the plan stays valid
+        assert "Goblet_Squat" in {ex.id for ex in stored.exercises}
+        # recommendations consumed — they describe a movement no longer there
+        assert "slot-squat-d1" not in stored.pending_swaps
+
+        events = await memory.history()
+        assert events[-1].type == MemoryEventType.SWAP_APPLIED
+        assert events[-1].payload == {
+            "slot_id": "slot-squat-d1",
+            "from": "Barbell_Squat",
+            "to": "Goblet_Squat",
+        }
+
+    async def test_reapplying_is_a_noop(
+        self, tmp_path, monkeypatch, sample_session
+    ):
+        store = _store(tmp_path)
+        memory = _memory(tmp_path)
+        await store.create(sample_session)
+        await self._recommend(
+            monkeypatch,
+            store,
+            sample_session,
+            "slot-squat-d1",
+            [make_exercise("Goblet_Squat", name="Goblet Squat")],
+        )
+        args = (sample_session.id, "slot-squat-d1", "Goblet_Squat")
+        await apply_swap(*args, store=store, memory=memory)
+
+        # a retried request must not fail, and must not double-log
+        plan = await apply_swap(*args, store=store, memory=memory)
+
+        assert _slot(plan, "slot-squat-d1").exercise_id == "Goblet_Squat"
+        swap_events = [
+            e
+            for e in await memory.history()
+            if e.type == MemoryEventType.SWAP_APPLIED
+        ]
+        assert len(swap_events) == 1
+
+    async def test_without_recommendations_raises(
+        self, tmp_path, sample_session
+    ):
+        store = _store(tmp_path)
+        await store.create(sample_session)
+        with pytest.raises(NoPendingRecommendations):
+            await apply_swap(
+                sample_session.id,
+                "slot-squat-d1",
+                "Goblet_Squat",
+                store=store,
+                memory=_memory(tmp_path),
+            )
+
+    async def test_replacement_outside_recommendations_raises(
+        self, tmp_path, monkeypatch, sample_session
+    ):
+        store = _store(tmp_path)
+        await store.create(sample_session)
+        await self._recommend(
+            monkeypatch,
+            store,
+            sample_session,
+            "slot-squat-d1",
+            [make_exercise("Goblet_Squat")],
+        )
         with pytest.raises(InvalidReplacement):
             await apply_swap(
                 sample_session.id,
-                "Barbell_Squat",
+                "slot-squat-d1",
                 "Not_A_Candidate",
                 store=store,
-                memory=memory,
+                memory=_memory(tmp_path),
+            )
+
+    async def test_unknown_slot_raises(self, tmp_path, sample_session):
+        store = _store(tmp_path)
+        await store.create(sample_session)
+        with pytest.raises(SlotNotFound):
+            await apply_swap(
+                sample_session.id,
+                "no-such-slot",
+                "Goblet_Squat",
+                store=store,
+                memory=_memory(tmp_path),
             )
 
     async def test_persists_mutation_across_reopen(
         self, tmp_path, monkeypatch, sample_session
     ):
-        _stub_swap_tool(monkeypatch, [make_exercise("Goblet_Squat")])
         sessions_path = tmp_path / "sessions.json"
         store = SnapshotSessionStore(JsonSnapshot(sessions_path))
         memory = _memory(tmp_path)
         await store.create(sample_session)
+        await self._recommend(
+            monkeypatch,
+            store,
+            sample_session,
+            "slot-squat-d1",
+            [make_exercise("Goblet_Squat", name="Goblet Squat")],
+        )
         await apply_swap(
             sample_session.id,
-            "Barbell_Squat",
+            "slot-squat-d1",
             "Goblet_Squat",
             store=store,
             memory=memory,
@@ -198,6 +324,5 @@ class TestApplySwap:
 
         reopened = SnapshotSessionStore(JsonSnapshot(sessions_path))
         plan = await get_plan(sample_session.id, store=reopened)
-        planned_ids = {pe.exercise_id for day in plan.days for pe in day.exercises}
-        assert "Goblet_Squat" in planned_ids
-        assert "Barbell_Squat" not in planned_ids
+        assert _slot(plan, "slot-squat-d1").exercise_id == "Goblet_Squat"
+        assert _slot(plan, "slot-squat-d2").exercise_id == "Barbell_Squat"

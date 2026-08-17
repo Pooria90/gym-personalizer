@@ -75,7 +75,11 @@ def tiny_dataset(tmp_path: Path):
 
 @pytest.fixture
 def sample_session(sample_profile) -> Session:
-    """A small, self-consistent Session (plan references the pooled exercises)."""
+    """A small, self-consistent Session (plan references the pooled exercises).
+
+    Barbell Squat is planned on both days, with fixed ``slot_id``s, so tests can
+    prove a swap lands on exactly one occurrence and leaves the other alone.
+    """
     exercises = [
         make_exercise("Barbell_Squat", name="Barbell Squat", equipment="barbell"),
         make_exercise("Push_Up", name="Push Up", equipment=None),
@@ -88,16 +92,34 @@ def sample_session(sample_profile) -> Session:
                 focus="full body",
                 exercises=[
                     PlannedExercise(
+                        slot_id="slot-squat-d1",
                         exercise_id="Barbell_Squat",
                         name="Barbell Squat",
                         sets=3,
                         reps="5",
                     ),
                     PlannedExercise(
-                        exercise_id="Push_Up", name="Push Up", sets=3, reps="10"
+                        slot_id="slot-pushup-d1",
+                        exercise_id="Push_Up",
+                        name="Push Up",
+                        sets=3,
+                        reps="10",
                     ),
                 ],
-            )
+            ),
+            WorkoutDay(
+                day_index=2,
+                focus="lower body",
+                exercises=[
+                    PlannedExercise(
+                        slot_id="slot-squat-d2",
+                        exercise_id="Barbell_Squat",
+                        name="Barbell Squat",
+                        sets=5,
+                        reps="3",
+                    ),
+                ],
+            ),
         ],
     )
     return Session(profile=sample_profile, exercises=exercises, plan=plan)
